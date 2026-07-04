@@ -9,6 +9,7 @@ __v0_jsx-dev-runtime.ts
 # Environment variables
 .env*.local
 .env
+/credentials
 
 # Common ignores
 node_modules
