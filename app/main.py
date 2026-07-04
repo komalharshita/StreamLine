@@ -16,6 +16,7 @@ from app.api.v1 import (
     simulation,
     upload,
 )
+from app.upload import upload_router
 from app.core.config import settings
 from app.core.logging import setup_logging
 from app.core.middleware import RequestLoggingMiddleware
@@ -96,7 +97,7 @@ def health_check() -> dict[str, Any]:
 # 5. Register versioned API routers
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Auth"])
 app.include_router(
-    upload.router, prefix=f"{settings.API_V1_STR}/upload", tags=["Upload & Ingestion"]
+    upload_router.router, prefix=settings.API_V1_STR, tags=["Upload"]
 )
 app.include_router(
     dashboard.router, prefix=f"{settings.API_V1_STR}/dashboard", tags=["Dashboard"]

@@ -14,6 +14,7 @@ httpx>=0.27.0
 # Install using the rapids index url: pip install --extra-index-url=https://pypi.nvidia.com cudf-cu12 cuml-cu12
 # For standard CPU development, pandas and scikit-learn are used as fallback options.
 pandas>=2.2.0
+openpyxl>=3.1.2
 scikit-learn>=1.4.0
 pytest>=8.0.0
 black>=24.2.0
