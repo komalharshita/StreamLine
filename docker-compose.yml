@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: streamline-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - PROJECT_NAME=StreamLine
+      - HOST=0.0.0.0
+      - PORT=8000
+      - GOOGLE_CLOUD_PROJECT=streamline-ai-saas
+      - GCS_BUCKET_NAME=streamline-data-ingestion
+      - BIGQUERY_DATASET=streamline_analytics
+      - FIREBASE_PROJECT_ID=streamline-auth
+      - FIREBASE_MOCK_AUTH=true
+    env_file:
+      - .env.example
+    volumes:
+      - ./app:/workspace/app
+    restart: always

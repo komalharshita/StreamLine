@@ -1,0 +1,21 @@
+fastapi>=0.110.0,<0.112.0
+uvicorn[standard]>=0.28.0,<0.30.0
+pydantic>=2.6.0,<3.0.0
+pydantic-settings>=2.2.0,<3.0.0
+python-multipart>=0.0.9
+google-cloud-storage>=2.15.0
+google-cloud-bigquery>=3.18.0
+google-generativeai>=0.4.0
+firebase-admin>=6.5.0
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+httpx>=0.27.0
+# RAPIDS cuDF and cuML are optional/platform-specific depending on GPU environment.
+# Install using the rapids index url: pip install --extra-index-url=https://pypi.nvidia.com cudf-cu12 cuml-cu12
+# For standard CPU development, pandas and scikit-learn are used as fallback options.
+pandas>=2.2.0
+scikit-learn>=1.4.0
+pytest>=8.0.0
+black>=24.2.0
+mypy>=1.9.0
+ruff>=0.3.0

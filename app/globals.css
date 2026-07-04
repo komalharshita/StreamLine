@@ -1,0 +1,70 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  color-scheme: dark;
+  
+  /* StreamLine Color Palette */
+  --background: #0B1020;
+  --foreground: #FFFFFF;
+  --card: #111827;
+  --card-foreground: #FFFFFF;
+  --popover: #111827;
+  --popover-foreground: #FFFFFF;
+  --primary: #00D4FF;
+  --primary-foreground: #0B1020;
+  --secondary: #3B82F6;
+  --secondary-foreground: #FFFFFF;
+  --muted: #1F2937;
+  --muted-foreground: #94A3B8;
+  --accent: #00D4FF;
+  --accent-foreground: #0B1020;
+  --destructive: #EF4444;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #00D4FF;
+  
+  /* Status colors */
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
+  
+  /* Chart colors */
+  --chart-1: #00D4FF;
+  --chart-2: #3B82F6;
+  --chart-3: #22C55E;
+  --chart-4: #F59E0B;
+  --chart-5: #EF4444;
+  
+  /* Sidebar */
+  --sidebar: #111827;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #00D4FF;
+  --sidebar-primary-foreground: #0B1020;
+  --sidebar-accent: #3B82F6;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #00D4FF;
+  
+  --radius: 1rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: var(--ring);
+  }
+  html {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}
