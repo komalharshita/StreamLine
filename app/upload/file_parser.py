@@ -40,7 +40,7 @@ class FileParser:
             
             rows, cols = df.shape
             logger.info(f"Successfully parsed file: rows={rows}, columns={cols}")
-            return int(rows), int(cols)
+            return int(rows), int(cols), df
 
         except Exception as e:
             logger.error(f"File parsing check failed (file might be corrupted): {str(e)}", exc_info=True)

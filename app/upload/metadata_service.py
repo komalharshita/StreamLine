@@ -53,6 +53,9 @@ class MetadataService:
         uploaded_by: str,
         gcs_uri: Optional[str] = None,
         gcs_url: Optional[str] = None,
+        dataset: Optional[str] = None,
+        table: Optional[str] = None,
+        job_id: Optional[str] = None,
     ) -> dict[str, Any]:
         """Saves a new upload metadata record and updates the duplicate index."""
         record = {
@@ -67,6 +70,9 @@ class MetadataService:
             "uploaded_by": uploaded_by,
             "gcs_uri": gcs_uri,
             "gcs_url": gcs_url,
+            "dataset": dataset,
+            "table": table,
+            "job_id": job_id,
             "status": "uploaded",
         }
         

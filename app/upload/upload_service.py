@@ -7,6 +7,7 @@ from app.upload.file_parser import FileParser
 from app.upload.metadata_service import metadata_store
 from app.upload.validators import FileValidator
 from app.storage.gcs_service import gcs_storage_service
+from app.bigquery.bigquery_service import bq_ingestion_service
 
 logger = logging.getLogger("app.upload.upload_service")
 
@@ -50,7 +51,7 @@ class UploadService:
             )
 
         # 5. Parse file structure dimensions (rows, columns) - catches corruption errors
-        rows, columns = FileParser.parse_and_get_dimensions(file_bytes, extension)
+        rows, columns, df = FileParser.parse_and_get_dimensions(file_bytes, extension)
 
         # 6. Upload original file to Cloud Storage
         upload_id = str(uuid.uuid4())
@@ -67,7 +68,21 @@ class UploadService:
             logger.critical(f"Upload to GCS failed: {str(e)}")
             raise e
 
-        # 7. Save metadata including GCS fields
+        # 6b. Ingest DataFrame into Google BigQuery
+        workspace = "analytics"
+        if "@" in uploaded_by:
+            workspace = uploaded_by.split("@")[-1].split(".")[0]
+
+        try:
+            bq_result = bq_ingestion_service.load_dataframe(df=df, workspace=workspace)
+            dataset = bq_result["dataset"]
+            table = bq_result["table"]
+            job_id = bq_result["job_id"]
+        except Exception as e:
+            logger.critical(f"BigQuery ingestion failed: {str(e)}")
+            raise e
+
+        # 7. Save metadata including GCS and BigQuery fields
         metadata_record = metadata_store.save(
             upload_id=upload_id,
             filename=filename,
@@ -79,6 +94,9 @@ class UploadService:
             uploaded_by=uploaded_by,
             gcs_uri=gcs_uri,
             gcs_url=gcs_url,
+            dataset=dataset,
+            table=table,
+            job_id=job_id,
         )
 
         return metadata_record

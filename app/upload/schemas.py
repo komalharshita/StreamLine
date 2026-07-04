@@ -16,6 +16,9 @@ class UploadMetadataResponse(BaseModel):
     uploaded_by: str = Field(..., description="Firebase identifier or email of the user")
     gcs_uri: Optional[str] = Field(None, description="Google Cloud Storage URI path (gs://bucket/path)")
     gcs_url: Optional[str] = Field(None, description="Public URL to access the uploaded file")
+    dataset: Optional[str] = Field(None, description="Google BigQuery dataset destination ID")
+    table: Optional[str] = Field(None, description="Google BigQuery table destination ID")
+    job_id: Optional[str] = Field(None, description="BigQuery Load Job Identifier")
     status: str = Field(..., description="Liveness status of the dataset (e.g., 'uploaded', 'deleted')")
 
     class Config:
