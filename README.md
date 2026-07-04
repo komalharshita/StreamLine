@@ -79,3 +79,12 @@ We use `ruff`, `black`, and `mypy` to maintain high code quality:
 2. **Repository Pattern**: Data persistence details (BigQuery, GCS, etc.) are abstracted away behind repository interfaces, making it trivial to swap storage engines.
 3. **Service Pattern**: Business logic is encapsulated in isolated services which are injected into API handlers.
 4. **Dependency Injection**: FastAPI's native dependency injection (`Depends`) is used to resolve and mock repositories and services during runtime and testing.
+
+---
+
+## Google Cloud Storage (GCS) Configuration
+The platform integrates with GCS for persisting uploaded datasets:
+* **Local Development**: Specify `GOOGLE_APPLICATION_CREDENTIALS` path pointing to your GCS service account JSON key file in the `.env` file. Ensure the service account possesses `Storage Object Admin` permission.
+* **Cloud Run Deployment**: Omit `GOOGLE_APPLICATION_CREDENTIALS`. The application will authenticate seamlessly via Application Default Credentials (ADC) using the service account assigned to the Cloud Run service.
+* **Bucket Settings**: Change `GCS_BUCKET_NAME` to specify your target storage bucket name.
+

@@ -14,6 +14,8 @@ class UploadMetadataResponse(BaseModel):
     size_bytes: int = Field(..., description="Total file size in bytes")
     upload_time: datetime = Field(..., description="Timestamp of when the upload completed")
     uploaded_by: str = Field(..., description="Firebase identifier or email of the user")
+    gcs_uri: Optional[str] = Field(None, description="Google Cloud Storage URI path (gs://bucket/path)")
+    gcs_url: Optional[str] = Field(None, description="Public URL to access the uploaded file")
     status: str = Field(..., description="Liveness status of the dataset (e.g., 'uploaded', 'deleted')")
 
     class Config:

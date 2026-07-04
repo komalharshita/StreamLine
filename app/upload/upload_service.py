@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 from app.upload.file_parser import FileParser
 from app.upload.metadata_service import metadata_store
 from app.upload.validators import FileValidator
+from app.storage.gcs_service import gcs_storage_service
 
 logger = logging.getLogger("app.upload.upload_service")
 
@@ -51,8 +52,22 @@ class UploadService:
         # 5. Parse file structure dimensions (rows, columns) - catches corruption errors
         rows, columns = FileParser.parse_and_get_dimensions(file_bytes, extension)
 
-        # 6. Save metadata
+        # 6. Upload original file to Cloud Storage
         upload_id = str(uuid.uuid4())
+        blob_name = f"uploads/{uploaded_by}/{upload_id}_{filename}"
+        
+        try:
+            gcs_url = gcs_storage_service.upload_bytes(
+                blob_name=blob_name,
+                data=file_bytes,
+                content_type=content_type
+            )
+            gcs_uri = f"gs://{gcs_storage_service.config.bucket_name}/{blob_name}"
+        except Exception as e:
+            logger.critical(f"Upload to GCS failed: {str(e)}")
+            raise e
+
+        # 7. Save metadata including GCS fields
         metadata_record = metadata_store.save(
             upload_id=upload_id,
             filename=filename,
@@ -62,6 +77,8 @@ class UploadService:
             size_bytes=size_bytes,
             file_hash=file_hash,
             uploaded_by=uploaded_by,
+            gcs_uri=gcs_uri,
+            gcs_url=gcs_url,
         )
 
         return metadata_record
@@ -85,7 +102,24 @@ class UploadService:
 
     @staticmethod
     def delete_upload(upload_id: str) -> None:
-        """Deletes upload records from the catalog."""
+        """Deletes upload records from the catalog and removes the associated GCS blob."""
+        # 1. Fetch metadata to retrieve GCS URI
+        record = UploadService.get_upload(upload_id)
+        
+        # 2. Attempt deleting the GCS blob if it exists
+        gcs_uri = record.get("gcs_uri")
+        if gcs_uri:
+            try:
+                # Extract blob name from gs://bucket_name/blob_name
+                bucket_prefix = f"gs://{gcs_storage_service.config.bucket_name}/"
+                if gcs_uri.startswith(bucket_prefix):
+                    blob_name = gcs_uri.split(bucket_prefix)[-1]
+                    gcs_storage_service.delete_blob(blob_name)
+            except Exception as e:
+                logger.error(f"Failed to delete GCS blob associated with upload '{upload_id}': {str(e)}")
+                # Continue soft deleting metadata even if GCS deletion fails to keep states synchronized
+        
+        # 3. Perform soft delete from catalog
         success = metadata_store.delete_by_id(upload_id)
         if not success:
             logger.warning(f"Delete operation failed: Upload ID '{upload_id}' not found.")

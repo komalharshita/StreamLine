@@ -51,6 +51,8 @@ class MetadataService:
         size_bytes: int,
         file_hash: str,
         uploaded_by: str,
+        gcs_uri: Optional[str] = None,
+        gcs_url: Optional[str] = None,
     ) -> dict[str, Any]:
         """Saves a new upload metadata record and updates the duplicate index."""
         record = {
@@ -63,6 +65,8 @@ class MetadataService:
             "file_hash": file_hash,
             "upload_time": datetime.now(timezone.utc),
             "uploaded_by": uploaded_by,
+            "gcs_uri": gcs_uri,
+            "gcs_url": gcs_url,
             "status": "uploaded",
         }
         
