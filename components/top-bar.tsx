@@ -1,12 +1,52 @@
 'use client'
 
-import { Search, Bell, Plus, ChevronDown } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { Search, Bell, Plus, ChevronDown, Loader2 } from 'lucide-react'
+import { apiClient } from '@/lib/api-client'
 
 interface TopBarProps {
   onChatOpen: () => void
 }
 
 export function TopBar({ onChatOpen }: TopBarProps) {
+  const [uploading, setUploading] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setStatus('idle')
+    
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      
+      await apiClient.post('/api/v1/upload', formData)
+      setStatus('success')
+      
+      // Dispatch custom event to notify other components to refresh
+      window.dispatchEvent(new Event('refresh-decisions'))
+      
+      setTimeout(() => setStatus('idle'), 3000)
+    } catch (err) {
+      console.error('File upload failed:', err)
+      setStatus('error')
+      setTimeout(() => setStatus('idle'), 4000)
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
+
   return (
     <div 
       className="px-8 py-4 flex items-center justify-between gap-4"
@@ -32,6 +72,15 @@ export function TopBar({ onChatOpen }: TopBarProps) {
         />
       </div>
 
+      {/* Hidden file input */}
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        style={{ display: 'none' }} 
+        accept=".csv,.xlsx,.xls,.json"
+      />
+
       {/* Right: Workspace Selector, Notifications, Quick Upload, Profile */}
       <div className="flex items-center gap-3">
         {/* Workspace Selector */}
@@ -51,15 +100,29 @@ export function TopBar({ onChatOpen }: TopBarProps) {
 
         {/* Quick Upload */}
         <button
-          onClick={onChatOpen}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity text-sm"
+          onClick={handleUploadClick}
+          disabled={uploading}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity text-sm disabled:opacity-50"
           style={{
-            backgroundColor: 'var(--accent)',
+            backgroundColor: status === 'success' ? 'var(--success)' : status === 'error' ? 'var(--danger)' : 'var(--accent)',
             color: 'var(--card)'
           }}
         >
-          <Plus className="w-4 h-4" />
-          Upload Data
+          {uploading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Plus className="w-4 h-4" />
+          )}
+          {uploading ? 'Uploading...' : status === 'success' ? 'Success!' : status === 'error' ? 'Failed!' : 'Upload Data'}
+        </button>
+
+        {/* Open Chat Assistant Trigger */}
+        <button 
+          onClick={onChatOpen}
+          className="px-3 py-2 border rounded-lg text-sm transition-colors hover:bg-muted font-medium"
+          style={{ borderColor: 'var(--border)' }}
+        >
+          Chat
         </button>
 
         {/* Profile */}
