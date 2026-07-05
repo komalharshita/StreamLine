@@ -1,5 +1,6 @@
 import logging
 from typing import Any, Mapping, Sequence
+
 from google.cloud import bigquery
 
 from app.database.connection import gcp_client_factory
@@ -38,16 +39,12 @@ class BigQueryManager:
 
         Returns a list of errors if any occurred, empty list otherwise.
         """
-        logger.debug(
-            f"Streaming {len(json_rows)} rows into {dataset_id}.{table_id}"
-        )
+        logger.debug(f"Streaming {len(json_rows)} rows into {dataset_id}.{table_id}")
         try:
             table_ref = self.client.dataset(dataset_id).table(table_id)
             errors = self.client.insert_rows_json(table_ref, json_rows)
             if errors:
-                logger.error(
-                    f"BigQuery streaming insert returned errors: {errors}"
-                )
+                logger.error(f"BigQuery streaming insert returned errors: {errors}")
             return errors
         except Exception as e:
             logger.error(f"BigQuery streaming insert failed: {str(e)}")

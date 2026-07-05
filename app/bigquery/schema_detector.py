@@ -1,7 +1,9 @@
 import logging
 import re
-from google.cloud import bigquery
+
 import pandas as pd
+from google.cloud import bigquery
+
 from app.bigquery.exceptions import SchemaDetectionError
 
 logger = logging.getLogger("app.bigquery.schema_detector")
@@ -33,14 +35,16 @@ class SchemaDetector:
         """
         logger.debug("Detecting schema fields from DataFrame.")
         if df.columns.empty:
-            raise SchemaDetectionError("Cannot detect schema for an empty DataFrame (no columns).")
+            raise SchemaDetectionError(
+                "Cannot detect schema for an empty DataFrame (no columns)."
+            )
 
         schema_fields = []
         for col in df.columns:
             col_name = str(col)
             sanitized_name = cls.sanitize_column_name(col_name)
             dtype = df[col].dtype
-            
+
             # Map pandas datatypes to BigQuery types
             if pd.api.types.is_integer_dtype(dtype):
                 field_type = "INTEGER"
@@ -54,9 +58,13 @@ class SchemaDetector:
                 # Default fallback for objects, categories, strings
                 field_type = "STRING"
 
-            logger.debug(f"Mapped column '{col_name}' -> '{sanitized_name}' ({dtype}) to BigQuery type: '{field_type}'")
+            logger.debug(
+                f"Mapped column '{col_name}' -> '{sanitized_name}' ({dtype}) to BigQuery type: '{field_type}'"
+            )
             schema_fields.append(
-                bigquery.SchemaField(name=sanitized_name, field_type=field_type, mode="NULLABLE")
+                bigquery.SchemaField(
+                    name=sanitized_name, field_type=field_type, mode="NULLABLE"
+                )
             )
 
         return schema_fields

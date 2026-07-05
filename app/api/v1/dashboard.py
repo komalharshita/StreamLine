@@ -1,4 +1,5 @@
 from typing import Any
+
 from fastapi import APIRouter, Depends
 
 from app.api.deps import get_current_user
@@ -42,8 +43,12 @@ def get_dashboard_metrics(
 
     chart_labels = ["Q1", "Q2", "Q3", "Q4"]
     chart_datasets = [
-        ChartSeries(name="ARR growth", data=[500000.0, 1100000.0, 1800000.0, 2450000.0]),
-        ChartSeries(name="Acquisitions cost", data=[45000.0, 52000.0, 48000.0, 60000.0]),
+        ChartSeries(
+            name="ARR growth", data=[500000.0, 1100000.0, 1800000.0, 2450000.0]
+        ),
+        ChartSeries(
+            name="Acquisitions cost", data=[45000.0, 52000.0, 48000.0, 60000.0]
+        ),
     ]
 
     return AnalyticsDashboardResponse(

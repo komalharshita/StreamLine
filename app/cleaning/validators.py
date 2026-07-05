@@ -1,6 +1,7 @@
 import logging
-from fastapi import HTTPException, status
+
 import pandas as pd
+from fastapi import HTTPException, status
 
 logger = logging.getLogger("app.cleaning.validators")
 
@@ -28,7 +29,9 @@ class CleaningValidator:
 
         # 2. Check column count
         if len(df.columns) == 0:
-            logger.warning("Cleaning Validation Failed: DataFrame contains zero columns.")
+            logger.warning(
+                "Cleaning Validation Failed: DataFrame contains zero columns."
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Dataset validation failed: The dataset contains no valid column headers.",
@@ -36,7 +39,9 @@ class CleaningValidator:
 
         # 3. Verify dataset category template if provided
         if dataset_type and dataset_type not in SUPPORTED_DATASETS:
-            logger.warning(f"Cleaning Validation Failed: Unsupported dataset type '{dataset_type}'.")
+            logger.warning(
+                f"Cleaning Validation Failed: Unsupported dataset type '{dataset_type}'."
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(

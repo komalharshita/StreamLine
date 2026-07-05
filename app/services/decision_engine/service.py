@@ -91,7 +91,9 @@ class DecisionEngineService(DecisionEngineServiceInterface):
 
         # Deduplicate recommended actions while preserving priority order
         seen = set()
-        deduped_actions = [x for x in recommended_actions if not (x in seen or seen.add(x))]
+        deduped_actions = [
+            x for x in recommended_actions if not (x in seen or seen.add(x))
+        ]
 
         duration_ms = (time.perf_counter() - start_time) * 1000
 

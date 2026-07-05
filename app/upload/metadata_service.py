@@ -77,12 +77,12 @@ class MetadataService:
             "quality_score": quality_score,
             "status": "uploaded",
         }
-        
+
         with self._lock:
             self._store[upload_id] = record
             self._hash_index[file_hash] = upload_id
             logger.info(f"Metadata record saved for upload ID: {upload_id}")
-            
+
         return record
 
     def get_by_id(self, upload_id: str) -> Optional[dict[str, Any]]:

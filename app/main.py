@@ -14,14 +14,13 @@ from app.api.v1 import (
     notifications,
     reports,
     simulation,
-    upload,
 )
-from app.upload import upload_router
-from app.decision_engine.router import router as decision_feed_router
-from app.gemini.routes import router as gemini_api_router
 from app.core.config import settings
 from app.core.logging import setup_logging
 from app.core.middleware import RequestLoggingMiddleware
+from app.decision_engine.router import router as decision_feed_router
+from app.gemini.routes import router as gemini_api_router
+from app.upload import upload_router
 
 # Initialize Structured/Local logging
 setup_logging()
@@ -98,9 +97,7 @@ def health_check() -> dict[str, Any]:
 
 # 5. Register versioned API routers
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Auth"])
-app.include_router(
-    upload_router.router, prefix=settings.API_V1_STR, tags=["Upload"]
-)
+app.include_router(upload_router.router, prefix=settings.API_V1_STR, tags=["Upload"])
 app.include_router(decision_feed_router)
 app.include_router(gemini_api_router)
 app.include_router(
@@ -109,7 +106,9 @@ app.include_router(
 app.include_router(
     decision.router, prefix=f"{settings.API_V1_STR}/decision", tags=["Decision Engine"]
 )
-app.include_router(chat.router, prefix=f"{settings.API_V1_STR}/chat", tags=["Gemini Chat"])
+app.include_router(
+    chat.router, prefix=f"{settings.API_V1_STR}/chat", tags=["Gemini Chat"]
+)
 app.include_router(
     simulation.router,
     prefix=f"{settings.API_V1_STR}/simulation",

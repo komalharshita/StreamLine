@@ -1,4 +1,5 @@
 from typing import Any, Sequence
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.deps import get_current_user, get_reports_service
@@ -21,9 +22,13 @@ def generate_analytical_report(
     """Submits a database query compilation request and writes output to Google Cloud Storage."""
     user_id = current_user.get("uid", "anonymous")
     report = reports_service.generate_report(request, user_id)
-    
+
     # Map GCS URI to HTTP Download URL
-    download_url = f"https://storage.googleapis.com/{reports_service.storage_repo.bucket_name}/" if hasattr(reports_service.storage_repo, "bucket_name") else "https://storage.googleapis.com/streamline-data-ingestion/"
+    download_url = (
+        f"https://storage.googleapis.com/{reports_service.storage_repo.bucket_name}/"
+        if hasattr(reports_service.storage_repo, "bucket_name")
+        else "https://storage.googleapis.com/streamline-data-ingestion/"
+    )
     if report.gcs_uri:
         blob_path = report.gcs_uri.split("gs://")[-1].split("/", 1)[-1]
         download_url += blob_path
@@ -41,17 +46,21 @@ def list_generated_reports(
     """Retrieves all reports compiled by the requesting user."""
     user_id = current_user.get("uid", "anonymous")
     reports = reports_service.list_reports(user_id)
-    
+
     responses = []
     for rep in reports:
         res = ReportResponse.model_validate(rep)
-        download_url = f"https://storage.googleapis.com/{reports_service.storage_repo.bucket_name}/" if hasattr(reports_service.storage_repo, "bucket_name") else "https://storage.googleapis.com/streamline-data-ingestion/"
+        download_url = (
+            f"https://storage.googleapis.com/{reports_service.storage_repo.bucket_name}/"
+            if hasattr(reports_service.storage_repo, "bucket_name")
+            else "https://storage.googleapis.com/streamline-data-ingestion/"
+        )
         if rep.gcs_uri:
             blob_path = rep.gcs_uri.split("gs://")[-1].split("/", 1)[-1]
             download_url += blob_path
         res.download_url = download_url
         responses.append(res)
-        
+
     return responses
 
 
@@ -68,9 +77,13 @@ def get_report_details(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Report '{id}' not found.",
         )
-        
+
     res = ReportResponse.model_validate(report)
-    download_url = f"https://storage.googleapis.com/{reports_service.storage_repo.bucket_name}/" if hasattr(reports_service.storage_repo, "bucket_name") else "https://storage.googleapis.com/streamline-data-ingestion/"
+    download_url = (
+        f"https://storage.googleapis.com/{reports_service.storage_repo.bucket_name}/"
+        if hasattr(reports_service.storage_repo, "bucket_name")
+        else "https://storage.googleapis.com/streamline-data-ingestion/"
+    )
     if report.gcs_uri:
         blob_path = report.gcs_uri.split("gs://")[-1].split("/", 1)[-1]
         download_url += blob_path

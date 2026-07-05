@@ -1,4 +1,5 @@
 from typing import Any, Optional, Sequence
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.deps import get_current_user, get_forecast_service, get_simulation_service
@@ -63,4 +64,3 @@ def run_timeseries_forecast(
     return forecast_service.generate_forecast(
         dataset_id=dataset_id, target_column=target_column, periods=periods or 30
     )
-

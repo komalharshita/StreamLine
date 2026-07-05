@@ -12,7 +12,9 @@ class RecommendationServiceInterface(BaseService, ABC):
     """Interface managing automated action and business recommendations."""
 
     @abstractmethod
-    def generate_recommendations(self, segment: str, limit: int) -> list[dict[str, Any]]:
+    def generate_recommendations(
+        self, segment: str, limit: int
+    ) -> list[dict[str, Any]]:
         """Processes user segment data to generate recommendations."""
         pass
 
@@ -23,9 +25,13 @@ class RecommendationService(RecommendationServiceInterface):
     def __init__(self, bq_manager: BigQueryManager) -> None:
         self.bq_manager = bq_manager
 
-    def generate_recommendations(self, segment: str, limit: int) -> list[dict[str, Any]]:
-        logger.info(f"Generating recommendations for segment: {segment} with limit: {limit}")
-        
+    def generate_recommendations(
+        self, segment: str, limit: int
+    ) -> list[dict[str, Any]]:
+        logger.info(
+            f"Generating recommendations for segment: {segment} with limit: {limit}"
+        )
+
         # Simulate fetching data or scoring segments
         # In production, this would query a feature store or run a cuML collaborative filter model
         recommendations = [

@@ -40,5 +40,7 @@ class ResponseParser:
                     return json.loads(match.group(0))
                 except json.JSONDecodeError:
                     pass
-            logger.warning("Failed to extract JSON format from Gemini response. Returning empty dictionary.")
+            logger.warning(
+                "Failed to extract JSON format from Gemini response. Returning empty dictionary."
+            )
             return {}

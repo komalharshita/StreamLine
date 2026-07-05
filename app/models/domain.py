@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Any, Optional
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -19,7 +20,9 @@ class User(DomainModel):
     id: str = Field(..., description="Unique user identifier (Firebase UID)")
     email: str = Field(..., description="User's email address")
     name: Optional[str] = Field(None, description="User's full name")
-    roles: list[str] = Field(default_factory=list, description="Assigned authorization roles")
+    roles: list[str] = Field(
+        default_factory=list, description="Assigned authorization roles"
+    )
     is_active: bool = Field(True, description="Indicates if the user account is active")
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -35,7 +38,9 @@ class FileMetadata(DomainModel):
     public_url: str = Field(..., description="HTTPS download URL of the blob")
     uploaded_by: str = Field(..., description="UID of the user who uploaded the file")
     uploaded_at: datetime = Field(default_factory=datetime.utcnow)
-    processed: bool = Field(False, description="Flag indicating if the file has been parsed into BigQuery")
+    processed: bool = Field(
+        False, description="Flag indicating if the file has been parsed into BigQuery"
+    )
 
 
 class DecisionRule(DomainModel):
@@ -44,8 +49,12 @@ class DecisionRule(DomainModel):
     id: str = Field(..., description="Unique identifier for the decision rule")
     name: str = Field(..., description="Descriptive name of the rule")
     expression: str = Field(..., description="Evaluation syntax or conditions")
-    action: str = Field(..., description="The output action or label applied when rule passes")
-    priority: int = Field(default=1, description="Priority level of execution (lower executes first)")
+    action: str = Field(
+        ..., description="The output action or label applied when rule passes"
+    )
+    priority: int = Field(
+        default=1, description="Priority level of execution (lower executes first)"
+    )
     is_active: bool = Field(True, description="Is the rule active")
     created_by: str = Field(..., description="UID of the authoring analyst/user")
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -56,10 +65,18 @@ class SimulationScenario(DomainModel):
 
     id: str = Field(..., description="Unique identifier for the simulation scenario")
     name: str = Field(..., description="Descriptive name of the simulation")
-    parameters: dict[str, Any] = Field(..., description="Key-value mapping of model inputs/variables")
-    base_dataset_id: str = Field(..., description="Reference to BigQuery table/dataset used as base")
-    status: str = Field("pending", description="Current status (pending, running, completed, failed)")
-    results_url: Optional[str] = Field(None, description="Path to simulation results output")
+    parameters: dict[str, Any] = Field(
+        ..., description="Key-value mapping of model inputs/variables"
+    )
+    base_dataset_id: str = Field(
+        ..., description="Reference to BigQuery table/dataset used as base"
+    )
+    status: str = Field(
+        "pending", description="Current status (pending, running, completed, failed)"
+    )
+    results_url: Optional[str] = Field(
+        None, description="Path to simulation results output"
+    )
     created_by: str = Field(..., description="UID of the user who initiated simulation")
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -69,9 +86,13 @@ class AnalyticsReport(DomainModel):
 
     id: str = Field(..., description="Unique identifier of the report")
     title: str = Field(..., description="Title of the report")
-    query_executed: str = Field(..., description="SQL query executed to build this report")
+    query_executed: str = Field(
+        ..., description="SQL query executed to build this report"
+    )
     export_format: str = Field("csv", description="Format (csv, pdf, json)")
-    gcs_uri: Optional[str] = Field(None, description="GCS URI location of exported file")
+    gcs_uri: Optional[str] = Field(
+        None, description="GCS URI location of exported file"
+    )
     created_by: str = Field(..., description="UID of the creator")
     created_at: datetime = Field(default_factory=datetime.utcnow)
 

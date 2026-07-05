@@ -1,6 +1,7 @@
 import logging
 import time
-from typing import Optional, Tuple
+from typing import Optional
+
 import pandas as pd
 
 from app.cleaning.data_profiler import DataProfiler
@@ -25,7 +26,9 @@ class DataCleaningService:
         """
         start_time = time.perf_counter()
         config = config or CleaningConfig()
-        logger.info(f"Starting dataset cleaning pipeline. Template: {config.dataset_type or 'Generic'}")
+        logger.info(
+            f"Starting dataset cleaning pipeline. Template: {config.dataset_type or 'Generic'}"
+        )
 
         # 1. Structural Checks & Validation
         CleaningValidator.validate_dataframe(df, config.dataset_type)
@@ -45,12 +48,16 @@ class DataCleaningService:
 
         # Step 5: Normalize currencies and percentages
         if config.normalize_currencies or config.normalize_percentages:
-            df_cleaned, _ = DataNormalizer.normalize_value_formats(df_cleaned, inferred_types)
+            df_cleaned, _ = DataNormalizer.normalize_value_formats(
+                df_cleaned, inferred_types
+            )
 
         # Step 6: Handle missing values (imputation)
         missing_filled = 0
         if config.impute_missing:
-            df_cleaned, missing_filled = DataNormalizer.handle_missing_values(df_cleaned, inferred_types)
+            df_cleaned, missing_filled = DataNormalizer.handle_missing_values(
+                df_cleaned, inferred_types
+            )
 
         # Step 7: Parse dates coercion
         df_cleaned = DataNormalizer.parse_dates(df_cleaned, inferred_types)
@@ -77,7 +84,9 @@ class DataCleaningService:
             start_time=start_time,
         )
 
-        logger.info(f"Finished dataset cleaning pipeline. Score: {report.quality_score}/100. Duration: {report.processing_time_ms}ms")
+        logger.info(
+            f"Finished dataset cleaning pipeline. Score: {report.quality_score}/100. Duration: {report.processing_time_ms}ms"
+        )
         return df_cleaned, report
 
 

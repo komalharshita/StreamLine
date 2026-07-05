@@ -1,4 +1,5 @@
 from typing import Any, Sequence
+
 from fastapi import APIRouter, Depends, File, UploadFile, status
 
 from app.api.deps import get_current_user, get_upload_service

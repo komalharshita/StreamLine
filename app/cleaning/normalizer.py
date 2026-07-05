@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Any, Mapping
+
 import pandas as pd
 
 from app.cleaning.utils import (
@@ -94,7 +94,7 @@ class DataNormalizer:
                 continue
 
             col_type = inferred_types.get(col)
-            
+
             # Numeric strategy: Median
             if col_type in {"Integer", "Float", "Currency", "Percentage"}:
                 # If all are missing, default to 0.0
@@ -102,7 +102,7 @@ class DataNormalizer:
                 if pd.isna(median_val):
                     median_val = 0.0
                 df_copy[col] = df_copy[col].fillna(median_val)
-                
+
             # Categorical strategy: Mode
             elif col_type in {"Category", "Text"}:
                 mode_series = df_copy[col].mode()
@@ -137,7 +137,9 @@ class DataNormalizer:
         return df_copy
 
     @staticmethod
-    def trim_whitespace(df: pd.DataFrame, inferred_types: dict[str, str]) -> pd.DataFrame:
+    def trim_whitespace(
+        df: pd.DataFrame, inferred_types: dict[str, str]
+    ) -> pd.DataFrame:
         """Trims leading/trailing spaces from string fields (Category and Text)."""
         logger.info("Trimming whitespaces from text columns.")
         df_copy = df.copy()
@@ -154,9 +156,9 @@ class DataNormalizer:
         """
         logger.info("Scanning for completely empty rows.")
         initial_len = len(df)
-        
+
         # Drops rows where all cells are NA
         cleaned_df = df.dropna(how="all")
         removed_count = initial_len - len(cleaned_df)
-        
+
         return cleaned_df, int(removed_count)

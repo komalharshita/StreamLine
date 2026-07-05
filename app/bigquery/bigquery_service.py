@@ -2,19 +2,20 @@ import logging
 import time
 from datetime import datetime, timezone
 from typing import Any, Optional
-from google.cloud import bigquery
-from google.oauth2 import service_account
+
+import pandas as pd
 from google.api_core.exceptions import GoogleAPIError
 from google.api_core.retry import Retry
-import pandas as pd
+from google.cloud import bigquery
+from google.oauth2 import service_account
 
 from app.bigquery.config import bq_config
+from app.bigquery.dataset_manager import DatasetManager
 from app.bigquery.exceptions import (
     BigQueryConnectionError,
     JobFailedError,
 )
 from app.bigquery.schema_detector import SchemaDetector
-from app.bigquery.dataset_manager import DatasetManager
 from app.bigquery.table_manager import TableManager
 
 logger = logging.getLogger("app.bigquery.bigquery_service")
@@ -63,7 +64,9 @@ class BigQueryService:
             return self._client
 
         except Exception as e:
-            logger.critical(f"Failed to connect to Google BigQuery: {str(e)}", exc_info=True)
+            logger.critical(
+                f"Failed to connect to Google BigQuery: {str(e)}", exc_info=True
+            )
             raise BigQueryConnectionError(
                 "Could not connect to Google BigQuery. Authentication or permissions failed.",
                 original_exception=e,
@@ -83,22 +86,28 @@ class BigQueryService:
         client = self._get_client()
 
         # 1. Format dynamic dataset naming: streamline_{workspace}
-        workspace_clean = "".join(e for e in (workspace or "default").lower() if e.isalnum())
+        workspace_clean = "".join(
+            e for e in (workspace or "default").lower() if e.isalnum()
+        )
         dataset_id = f"streamline_{workspace_clean}"
 
         # 2. Format dynamic table naming: sales_YYYYMMDD_HHMMSS
         timestamp_suffix = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         table_id = table_name_override or f"sales_{timestamp_suffix}"
 
-        logger.info(f"Preparing BigQuery ingestion to target destination: '{dataset_id}.{table_id}'")
+        logger.info(
+            f"Preparing BigQuery ingestion to target destination: '{dataset_id}.{table_id}'"
+        )
 
         try:
             # 3. Detect and sanitize schema mapping
             schema = SchemaDetector.detect_schema(df)
-            
+
             # Map column names in the DataFrame to their sanitized equivalents
             df_cleaned = df.copy()
-            df_cleaned.columns = [SchemaDetector.sanitize_column_name(str(col)) for col in df.columns]
+            df_cleaned.columns = [
+                SchemaDetector.sanitize_column_name(str(col)) for col in df.columns
+            ]
 
             # 4. Ensure dataset exists
             ds_manager = DatasetManager(client)
@@ -148,7 +157,9 @@ class BigQueryService:
                 original_exception=e,
             )
         except Exception as e:
-            logger.error(f"Unexpected error loading dataset to BigQuery: {str(e)}", exc_info=True)
+            logger.error(
+                f"Unexpected error loading dataset to BigQuery: {str(e)}", exc_info=True
+            )
             raise JobFailedError(
                 f"Unexpected BigQuery load error: {str(e)}",
                 original_exception=e,

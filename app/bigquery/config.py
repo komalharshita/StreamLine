@@ -1,6 +1,7 @@
 import logging
-from app.core.config import settings
+
 from app.bigquery.exceptions import BigQueryConfigurationError
+from app.core.config import settings
 
 logger = logging.getLogger("app.bigquery.config")
 

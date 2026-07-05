@@ -14,7 +14,7 @@ def clean_currency_value(val: Any) -> float:
         return 0.0
     if isinstance(val, (int, float)):
         return float(val)
-    
+
     # Remove symbols like $, €, £ and commas
     cleaned = re.sub(r"[^\d\.\-]", "", str(val))
     try:

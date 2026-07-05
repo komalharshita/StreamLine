@@ -1,5 +1,6 @@
 import logging
 from typing import Any
+
 from app.decision_engine.decision_service import decision_service
 from app.upload.metadata_service import metadata_store
 
@@ -13,17 +14,21 @@ class ContextBuilder:
     def build_system_context(workspace: str = "default") -> dict[str, Any]:
         """Gathers dashboard metrics, active decisions, and recent file uploads as prompt context."""
         logger.info(f"Assembling system prompt context for workspace: '{workspace}'")
-        
+
         # 1. Fetch active decisions from feed
         decisions = decision_service.get_feed()
         critical_count = sum(1 for d in decisions if d.priority_level == "Critical")
         high_count = sum(1 for d in decisions if d.priority_level == "High")
         medium_count = sum(1 for d in decisions if d.priority_level == "Medium")
-        
+
         # 2. Extract recent uploads
         uploads = list(metadata_store._store.values())
         recent_files = [
-            {"filename": u["filename"], "rows": u["rows"], "quality_score": u.get("quality_score")}
+            {
+                "filename": u["filename"],
+                "rows": u["rows"],
+                "quality_score": u.get("quality_score"),
+            }
             for u in uploads[:5]
         ]
 
@@ -57,7 +62,7 @@ class ContextBuilder:
             f"  - Medium Priority: {context.get('medium_decisions_count', 0)}",
             "\n### ACTIVE DECISION DETAILS:",
         ]
-        
+
         decisions = context.get("recent_decisions", [])
         if not decisions:
             lines.append("  - No active decisions identified at this time.")

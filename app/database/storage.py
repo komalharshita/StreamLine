@@ -1,5 +1,6 @@
 import logging
 from typing import Optional
+
 from google.cloud import storage
 
 from app.database.connection import gcp_client_factory

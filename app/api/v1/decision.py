@@ -1,4 +1,5 @@
 from typing import Any, Sequence
+
 from fastapi import APIRouter, Depends, status
 
 from app.api.deps import get_current_user, get_decision_engine_service
@@ -13,9 +14,7 @@ from app.services.decision_engine.service import DecisionEngineServiceInterface
 router = APIRouter()
 
 
-@router.post(
-    "/rule", response_model=RuleResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("/rule", response_model=RuleResponse, status_code=status.HTTP_201_CREATED)
 def create_decision_rule(
     rule_in: RuleCreate,
     current_user: dict[str, Any] = Depends(get_current_user),

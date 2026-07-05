@@ -1,16 +1,16 @@
 import unittest
 from datetime import datetime, timezone
 from unittest.mock import patch
-import pandas as pd
+
 from fastapi.testclient import TestClient
 
-from app.main import app
 from app.decision_engine.decision_service import decision_service
 from app.decision_engine.schemas import Decision
-from app.gemini.prompt_builder import PromptBuilder
 from app.gemini.context_builder import ContextBuilder
-from app.gemini.response_parser import ResponseParser
 from app.gemini.gemini_service import gemini_service
+from app.gemini.prompt_builder import PromptBuilder
+from app.gemini.response_parser import ResponseParser
+from app.main import app
 
 
 class TestGeminiIntegration(unittest.TestCase):
@@ -20,9 +20,11 @@ class TestGeminiIntegration(unittest.TestCase):
         self.client = TestClient(app)
 
         # Mock the Gemini API client call to isolate tests from the network and quota limits
-        self.api_patcher = patch("app.gemini.gemini_service.gemini_service._call_gemini_api")
+        self.api_patcher = patch(
+            "app.gemini.gemini_service.gemini_service._call_gemini_api"
+        )
         self.mock_api = self.api_patcher.start()
-        
+
         # Dynamic mock response based on prompt text
         def dynamic_mock_api(prompt, system_instruction=None):
             if "JSON" in prompt or "summary" in prompt.lower():
@@ -32,7 +34,7 @@ class TestGeminiIntegration(unittest.TestCase):
                     '"recommended_actions": ["Mock Action"]}'
                 )
             return "Mocked response from DecisionPilot."
-            
+
         self.mock_api.side_effect = dynamic_mock_api
 
     def tearDown(self) -> None:
@@ -73,11 +75,11 @@ class TestGeminiIntegration(unittest.TestCase):
             created_at=datetime.now(timezone.utc),
         )
         decision_service._feed[d.decision_id] = d
-        
+
         ctx = ContextBuilder.build_system_context()
         self.assertEqual(ctx["critical_decisions_count"], 1)
         self.assertEqual(ctx["total_decisions_count"], 1)
-        
+
         formatted = ContextBuilder.format_context_as_text(ctx)
         self.assertIn("Revenue Drop Alert", formatted)
         self.assertIn("Impact: $10,000.00", formatted)
@@ -108,7 +110,9 @@ class TestGeminiIntegration(unittest.TestCase):
 
         # Executive Summary
         summary_res = gemini_service.generate_executive_summary()
-        self.assertEqual(summary_res.business_health_summary, "Mock business health summary")
+        self.assertEqual(
+            summary_res.business_health_summary, "Mock business health summary"
+        )
         self.assertEqual(summary_res.top_risks, ["Mock Risk"])
 
         # Trend explanation
@@ -141,7 +145,9 @@ class TestGeminiIntegration(unittest.TestCase):
         decision_service._feed[d.decision_id] = d
 
         # 1. POST /api/v1/chat
-        chat_response = self.client.post("/api/v1/chat", json={"message": "What is the status?"})
+        chat_response = self.client.post(
+            "/api/v1/chat", json={"message": "What is the status?"}
+        )
         self.assertEqual(chat_response.status_code, 200)
         self.assertIn("response", chat_response.json())
 

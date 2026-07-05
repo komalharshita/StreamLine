@@ -52,10 +52,14 @@ class UploadService(UploadServiceInterface):
         logger.info(f"Handling upload for file: {filename} by user: {user_id}")
         file_id = str(uuid.uuid4())
         blob_name = f"uploads/{user_id}/{file_id}_{filename}"
-        
+
         # Upload blob content to cloud storage
         public_url = self.storage_repo.upload_blob(blob_name, data, content_type)
-        gcs_uri = f"gs://{self.storage_repo.bucket_name}/{blob_name}" if hasattr(self.storage_repo, "bucket_name") else f"gs://streamline-data-ingestion/{blob_name}"
+        gcs_uri = (
+            f"gs://{self.storage_repo.bucket_name}/{blob_name}"
+            if hasattr(self.storage_repo, "bucket_name")
+            else f"gs://streamline-data-ingestion/{blob_name}"
+        )
 
         # Save metadata transaction log
         metadata = FileMetadata(
@@ -71,7 +75,9 @@ class UploadService(UploadServiceInterface):
         return self.metadata_repo.save(metadata)
 
     def trigger_ingestion(self, file_id: str, target_table: str) -> IngestionResponse:
-        logger.info(f"Triggering BigQuery ingestion for file: {file_id} to table: {target_table}")
+        logger.info(
+            f"Triggering BigQuery ingestion for file: {file_id} to table: {target_table}"
+        )
         metadata = self.metadata_repo.get_by_id(file_id)
         if not metadata:
             raise ValueError(f"File metadata record not found for ID: {file_id}")
@@ -79,7 +85,7 @@ class UploadService(UploadServiceInterface):
         # Simulate BigQuery Load Job
         job_id = f"bq-load-{uuid.uuid4()}"
         logger.info(f"Simulating BigQuery load job {job_id} from {metadata.gcs_uri}")
-        
+
         # Mark metadata file as processed
         metadata.processed = True
         self.metadata_repo.save(metadata)

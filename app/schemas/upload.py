@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -25,6 +26,8 @@ class IngestionResponse(BaseModel):
     """Response confirming ingestion pipeline outcome."""
 
     job_id: str = Field(..., description="BigQuery Load Job Identifier")
-    status: str = Field(..., description="State of the load job (e.g. RUNNING, SUCCESS, FAILED)")
+    status: str = Field(
+        ..., description="State of the load job (e.g. RUNNING, SUCCESS, FAILED)"
+    )
     rows_loaded: int = Field(default=0, description="Count of records inserted")
     message: str = Field(...)

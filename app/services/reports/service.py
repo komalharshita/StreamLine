@@ -58,11 +58,17 @@ class ReportsService(ReportsServiceInterface):
         )
 
         # Upload file output to storage
-        content_type = "text/csv" if report_in.export_format == "csv" else "application/json"
+        content_type = (
+            "text/csv" if report_in.export_format == "csv" else "application/json"
+        )
         public_url = self.storage_repo.upload_blob(
             blob_name, simulated_data.encode("utf-8"), content_type=content_type
         )
-        gcs_uri = f"gs://{self.storage_repo.bucket_name}/{blob_name}" if hasattr(self.storage_repo, "bucket_name") else f"gs://streamline-data-ingestion/{blob_name}"
+        gcs_uri = (
+            f"gs://{self.storage_repo.bucket_name}/{blob_name}"
+            if hasattr(self.storage_repo, "bucket_name")
+            else f"gs://streamline-data-ingestion/{blob_name}"
+        )
 
         report = AnalyticsReport(
             id=report_id,
@@ -81,4 +87,3 @@ class ReportsService(ReportsServiceInterface):
 
     def list_reports(self, user_id: str) -> Sequence[AnalyticsReport]:
         return self.report_repo.list_by_user(user_id)
-

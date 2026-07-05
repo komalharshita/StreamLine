@@ -1,17 +1,18 @@
 import logging
-from fastapi import APIRouter, Depends, HTTPException, status
 
+from fastapi import APIRouter
+
+from app.decision_engine.decision_service import decision_service
+from app.gemini.gemini_service import gemini_service
 from app.gemini.schemas import (
     ChatRequest,
     ChatResponse,
+    ExecutiveSummaryResponse,
     ExplainDecisionRequest,
     ExplainDecisionResponse,
-    ExecutiveSummaryResponse,
     TrendExplanationRequest,
     TrendExplanationResponse,
 )
-from app.gemini.gemini_service import gemini_service
-from app.decision_engine.decision_service import decision_service
 
 logger = logging.getLogger("app.gemini.routes")
 
@@ -34,7 +35,9 @@ def explain_decision_detail(request: ExplainDecisionRequest):
     return gemini_service.explain_decision(decision)
 
 
-@router.post("/api/v1/gemini/executive-summary", response_model=ExecutiveSummaryResponse)
+@router.post(
+    "/api/v1/gemini/executive-summary", response_model=ExecutiveSummaryResponse
+)
 def get_executive_summary():
     """Generates a structured executive performance summary and strategic tasks checklist."""
     logger.info("Handling POST request for platform executive summary.")
@@ -44,5 +47,7 @@ def get_executive_summary():
 @router.post("/api/v1/gemini/trends", response_model=TrendExplanationResponse)
 def explain_metrics_trends(request: TrendExplanationRequest):
     """Explains revenue, inventory, or expense timelines in plain language."""
-    logger.info(f"Handling POST request to explain trends of type: {request.trend_type}")
+    logger.info(
+        f"Handling POST request to explain trends of type: {request.trend_type}"
+    )
     return gemini_service.explain_trend(request.trend_type, request.raw_data_summary)

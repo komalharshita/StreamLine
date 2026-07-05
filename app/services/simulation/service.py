@@ -1,7 +1,6 @@
 import logging
 import uuid
 from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import Optional, Sequence
 
 from app.models.domain import SimulationScenario
@@ -42,7 +41,9 @@ class SimulationService(SimulationServiceInterface):
     def run_simulation(
         self, scenario_in: SimulationCreate, user_id: str
     ) -> SimulationScenario:
-        logger.info(f"Running scenario simulation: {scenario_in.name} by user: {user_id}")
+        logger.info(
+            f"Running scenario simulation: {scenario_in.name} by user: {user_id}"
+        )
         scenario_id = f"sim-{uuid.uuid4()}"
 
         # Initialize pending scenario model
@@ -57,8 +58,10 @@ class SimulationService(SimulationServiceInterface):
         saved_scenario = self.scenario_repo.save(scenario)
 
         # Simulate execution pipeline (in production, this would trigger an async celery/PubSub task)
-        logger.info(f"Simulating asynchronous run execution for scenario: {scenario_id}")
-        
+        logger.info(
+            f"Simulating asynchronous run execution for scenario: {scenario_id}"
+        )
+
         # Fast-forward to completed state for boilerplate placeholder response
         saved_scenario.status = "completed"
         saved_scenario.results_url = f"https://storage.googleapis.com/streamline-data-ingestion/simulations/{scenario_id}_results.csv"

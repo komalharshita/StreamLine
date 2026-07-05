@@ -1,9 +1,10 @@
 import logging
 from typing import Any
+
+import firebase_admin
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-import firebase_admin
-from firebase_admin import auth, credentials
+from firebase_admin import auth
 
 from app.core.config import settings
 

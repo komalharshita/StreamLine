@@ -15,7 +15,9 @@ class JSONFormatter(logging.Formatter):
         log_record: dict[str, Any] = {
             "severity": record.levelname,
             "message": record.getMessage(),
-            "timestamp": datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(),
+            "timestamp": datetime.fromtimestamp(
+                record.created, tz=timezone.utc
+            ).isoformat(),
             "logging.googleapis.com/sourceLocation": {
                 "file": record.pathname,
                 "line": record.lineno,
@@ -37,7 +39,7 @@ class JSONFormatter(logging.Formatter):
 def setup_logging() -> logging.Logger:
     """Sets up global application logging configuration."""
     logger = logging.getLogger()
-    
+
     # Remove default handlers to prevent duplicate logs
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)

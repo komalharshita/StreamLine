@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -16,11 +17,15 @@ class NotificationResponse(BaseModel):
 class MarkReadRequest(BaseModel):
     """Payload to mark selected notifications as read."""
 
-    notification_ids: list[str] = Field(..., description="Identifiers of notifications to update")
+    notification_ids: list[str] = Field(
+        ..., description="Identifiers of notifications to update"
+    )
 
 
 class MarkReadResponse(BaseModel):
     """Confirmation payload returned after marking notifications read."""
 
-    updated_count: int = Field(..., description="Number of notifications successfully marked read")
+    updated_count: int = Field(
+        ..., description="Number of notifications successfully marked read"
+    )
     success: bool = True

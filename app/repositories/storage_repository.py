@@ -57,9 +57,7 @@ class GCSStorageRepository(StorageRepositoryInterface):
 
     def download_blob(self, blob_name: str) -> bytes:
         logger.info(f"Downloading blob {blob_name} from bucket {self.bucket_name}")
-        return self.storage_manager.download_file_to_memory(
-            self.bucket_name, blob_name
-        )
+        return self.storage_manager.download_file_to_memory(self.bucket_name, blob_name)
 
     def delete_blob(self, blob_name: str) -> None:
         logger.info(f"Deleting blob {blob_name} from bucket {self.bucket_name}")

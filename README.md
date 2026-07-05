@@ -97,4 +97,56 @@ The ingestion pipeline automatically standardizes and cleans business datasets b
 * **Value Normalization**: Converts currency strings (e.g., `$1,200.50`) and percentage expressions (e.g., `12.5%`) to standard float and decimal formats.
 * **Data Quality Score**: Renders a quality index (0–100) based on cell completion ratios, row duplicates, and structural anomalies.
 
+---
+
+## Next.js Frontend Setup
+
+### Prerequisites
+1. Node.js 18+
+2. pnpm or npm
+
+### Local Development
+1. Install node dependencies:
+   ```bash
+   npm install
+   ```
+2. Configure frontend variables in `.env`:
+   ```env
+   NEXT_PUBLIC_API_URL="http://localhost:8000"
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:3000` to interact with the platform.
+
+---
+
+## Production Deployment Guide
+
+### Frontend Deployment: Vercel
+1. Commit and push all changes to your GitHub repository.
+2. Link the repository to your Vercel Account.
+3. Configure the **Build Settings** to use Next.js default settings.
+4. Set the **Environment Variables**:
+   * `NEXT_PUBLIC_API_URL`: Point to your live Google Cloud Run backend URL (e.g., `https://streamline-backend-xxxxx.run.app`).
+5. Click **Deploy**.
+
+### Backend Deployment: Google Cloud Run
+1. Build the production Docker image:
+   ```bash
+   gcloud builds submit --tag gcr.io/your-project-id/streamline-backend
+   ```
+2. Deploy the container to Cloud Run:
+   ```bash
+   gcloud run deploy streamline-backend \
+     --image gcr.io/your-project-id/streamline-backend \
+     --platform managed \
+     --region us-central1 \
+     --allow-unauthenticated \
+     --set-env-vars="ENVIRONMENT=production,GOOGLE_CLOUD_PROJECT=your-project-id,GCS_BUCKET_NAME=your-bucket-name,BIGQUERY_DATASET=your-dataset-name,GEMINI_API_KEY=your-gemini-key"
+   ```
+3. Copy the service URL returned by Cloud Run and configure it in your Vercel Environment Variables.
+
+
 

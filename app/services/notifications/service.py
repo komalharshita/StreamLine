@@ -1,7 +1,6 @@
 import logging
 import uuid
 from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import Sequence
 
 from app.models.domain import PlatformNotification
@@ -45,7 +44,7 @@ class NotificationsService(NotificationsServiceInterface):
         self, recipient_id: str, title: str, message: str
     ) -> PlatformNotification:
         logger.info(f"Dispatching notification '{title}' to user: {recipient_id}")
-        
+
         notification = PlatformNotification(
             id=f"notif-{uuid.uuid4()}",
             recipient_id=recipient_id,
@@ -54,7 +53,7 @@ class NotificationsService(NotificationsServiceInterface):
             read=False,
         )
         self._notifications.append(notification)
-        
+
         # In production, this would publish a message to Google Cloud Pub/Sub or AWS SNS
         logger.debug(f"Notification {notification.id} published to active subscribers.")
         return notification
@@ -62,7 +61,9 @@ class NotificationsService(NotificationsServiceInterface):
     def mark_notifications_read(
         self, request: MarkReadRequest, user_id: str
     ) -> MarkReadResponse:
-        logger.info(f"Marking {len(request.notification_ids)} notifications read for user {user_id}")
+        logger.info(
+            f"Marking {len(request.notification_ids)} notifications read for user {user_id}"
+        )
         count = 0
         for notif in self._notifications:
             if notif.recipient_id == user_id and notif.id in request.notification_ids:

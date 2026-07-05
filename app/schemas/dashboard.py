@@ -1,4 +1,3 @@
-from typing import Any
 from pydantic import BaseModel, Field
 
 
@@ -8,8 +7,12 @@ class KPIMetric(BaseModel):
     key: str = Field(..., description="Unique slug for the metric")
     label: str = Field(..., description="Display title for the KPI card")
     value: float = Field(..., description="Current value of the KPI")
-    change_percentage: float = Field(..., description="Percentage change compared to previous period")
-    trend: str = Field("neutral", description="Trend direction: 'up', 'down', or 'neutral'")
+    change_percentage: float = Field(
+        ..., description="Percentage change compared to previous period"
+    )
+    trend: str = Field(
+        "neutral", description="Trend direction: 'up', 'down', or 'neutral'"
+    )
 
 
 class ChartSeries(BaseModel):
@@ -23,6 +26,10 @@ class AnalyticsDashboardResponse(BaseModel):
     """Response payload containing full aggregation of dashboard widgets."""
 
     kpi_cards: list[KPIMetric] = Field(default_factory=list)
-    chart_labels: list[str] = Field(default_factory=list, description="X-axis timeline labels")
+    chart_labels: list[str] = Field(
+        default_factory=list, description="X-axis timeline labels"
+    )
     chart_datasets: list[ChartSeries] = Field(default_factory=list)
-    system_status: str = Field("operational", description="Status of analytical systems")
+    system_status: str = Field(
+        "operational", description="Status of analytical systems"
+    )

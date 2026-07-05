@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import Any
+
 import pandas as pd
 
 from app.cleaning.schemas import DataQualityReport
@@ -27,7 +27,9 @@ class QualityReporter:
 
         total_cells = initial_df.size
         missing_percentage = (missing_filled / total_cells) if total_cells > 0 else 0.0
-        duplicate_percentage = (duplicates_removed / len(initial_df)) if len(initial_df) > 0 else 0.0
+        duplicate_percentage = (
+            (duplicates_removed / len(initial_df)) if len(initial_df) > 0 else 0.0
+        )
 
         # Quality score formula (starts at 100, drops on missing/duplicate density)
         # 1. Missing cells deduct up to 50 points
@@ -35,26 +37,43 @@ class QualityReporter:
         # 2. Duplicates deduct up to 30 points
         duplicate_deduction = duplicate_percentage * 30.0
         # 3. Completely empty rows deduct up to 10 points
-        empty_deduction = (empty_rows_removed / len(initial_df) * 10.0) if len(initial_df) > 0 else 0.0
+        empty_deduction = (
+            (empty_rows_removed / len(initial_df) * 10.0)
+            if len(initial_df) > 0
+            else 0.0
+        )
 
-        score = max(0.0, min(100.0, 100.0 - missing_deduction - duplicate_deduction - empty_deduction))
+        score = max(
+            0.0,
+            min(
+                100.0, 100.0 - missing_deduction - duplicate_deduction - empty_deduction
+            ),
+        )
 
         # Compile warnings
         warnings = []
         if duplicates_removed > 0:
-            warnings.append(f"Identified and eliminated {duplicates_removed} duplicate row records.")
+            warnings.append(
+                f"Identified and eliminated {duplicates_removed} duplicate row records."
+            )
         if missing_filled > 0:
             warnings.append(
                 f"Imputed {missing_filled} missing values (Missing Density: {missing_percentage:.2%})."
             )
         if empty_rows_removed > 0:
-            warnings.append(f"Cleaned {empty_rows_removed} completely blank rows from the source sheet.")
+            warnings.append(
+                f"Cleaned {empty_rows_removed} completely blank rows from the source sheet."
+            )
         if renamed_columns:
-            warnings.append(f"Standardized {len(renamed_columns)} headers into snake_case format.")
-        
+            warnings.append(
+                f"Standardized {len(renamed_columns)} headers into snake_case format."
+            )
+
         # Low quality warnings
         if score < 70.0:
-            warnings.append(f"Warning: Low dataset quality score: {score:.1f}/100. Inspect source structure.")
+            warnings.append(
+                f"Warning: Low dataset quality score: {score:.1f}/100. Inspect source structure."
+            )
 
         errors = []
         # If score drops to 0, or dimensions are corrupted

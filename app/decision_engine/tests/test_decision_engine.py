@@ -1,13 +1,14 @@
 import unittest
+
 import pandas as pd
 from fastapi.testclient import TestClient
 
-from app.main import app
-from app.decision_engine.priority_engine import PriorityEngine
 from app.decision_engine.confidence_engine import ConfidenceEngine
-from app.decision_engine.recommendation_engine import RecommendationEngine
 from app.decision_engine.decision_detector import DecisionDetector
 from app.decision_engine.decision_service import decision_service
+from app.decision_engine.priority_engine import PriorityEngine
+from app.decision_engine.recommendation_engine import RecommendationEngine
+from app.main import app
 
 
 class TestDecisionIntelligenceEngine(unittest.TestCase):
@@ -63,7 +64,7 @@ class TestDecisionIntelligenceEngine(unittest.TestCase):
         }
         df = pd.DataFrame(data)
         decisions = DecisionDetector.detect_sales_decisions(df)
-        
+
         # Verify a revenue drop decision is triggered
         categories = [d.category for d in decisions]
         self.assertIn("Revenue Drop", categories)
@@ -83,7 +84,7 @@ class TestDecisionIntelligenceEngine(unittest.TestCase):
         df = pd.DataFrame(data)
         decisions = DecisionDetector.detect_inventory_decisions(df)
         categories = [d.category for d in decisions]
-        
+
         self.assertIn("Inventory Shortage", categories)
         self.assertIn("Slow Moving Products", categories)
 
@@ -96,7 +97,7 @@ class TestDecisionIntelligenceEngine(unittest.TestCase):
         df = pd.DataFrame(data)
         decisions = DecisionDetector.detect_financial_decisions(df)
         categories = [d.category for d in decisions]
-        
+
         self.assertIn("Expense Spike", categories)
 
     def test_decision_service_and_endpoints(self):
@@ -109,17 +110,17 @@ class TestDecisionIntelligenceEngine(unittest.TestCase):
         }
         df = pd.DataFrame(sales_data)
         decision_service.refresh_feed_from_dataframe(df, "Sales")
-        
+
         # Assert feed is populated
         feed = decision_service.get_feed()
         self.assertTrue(len(feed) > 0)
-        
+
         # 2. Test GET API /api/v1/decision-feed
         response = self.client.get("/api/v1/decision-feed")
         self.assertEqual(response.status_code, 200)
         payload = response.json()
         self.assertEqual(payload["total_count"], len(feed))
-        
+
         # 3. Test GET Detail /api/v1/decision-feed/{id}
         decision_id = feed[0].decision_id
         detail_response = self.client.get(f"/api/v1/decision-feed/{decision_id}")
@@ -128,8 +129,7 @@ class TestDecisionIntelligenceEngine(unittest.TestCase):
 
         # 4. Test POST refresh endpoint
         refresh_response = self.client.post(
-            "/api/v1/decision-feed/refresh",
-            json={"workspace": "analytics"}
+            "/api/v1/decision-feed/refresh", json={"workspace": "analytics"}
         )
         self.assertEqual(refresh_response.status_code, 201)
 

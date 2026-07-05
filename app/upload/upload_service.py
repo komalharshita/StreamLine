@@ -1,15 +1,16 @@
 import logging
 import uuid
-from typing import Any, Optional
+from typing import Any
+
 from fastapi import HTTPException, status
 
-from app.upload.file_parser import FileParser
-from app.upload.metadata_service import metadata_store
-from app.upload.validators import FileValidator
-from app.storage.gcs_service import gcs_storage_service
 from app.bigquery.bigquery_service import bq_ingestion_service
 from app.cleaning.cleaning_service import cleaning_service
 from app.cleaning.schemas import CleaningConfig
+from app.storage.gcs_service import gcs_storage_service
+from app.upload.file_parser import FileParser
+from app.upload.metadata_service import metadata_store
+from app.upload.validators import FileValidator
 
 logger = logging.getLogger("app.upload.upload_service")
 
@@ -26,7 +27,9 @@ class UploadService:
     ) -> dict[str, Any]:
         """Validates, deduplicates, parses, and logs the metadata of an uploaded file."""
         size_bytes = len(file_bytes)
-        logger.info(f"Processing upload for file: '{filename}', size={size_bytes} bytes, MIME={content_type}")
+        logger.info(
+            f"Processing upload for file: '{filename}', size={size_bytes} bytes, MIME={content_type}"
+        )
 
         # 1. Validate File Size (0 bytes check, 100MB limit check)
         FileValidator.validate_size(size_bytes)
@@ -41,7 +44,9 @@ class UploadService:
         duplicate = metadata_store.check_duplicate_hash(file_hash)
         if duplicate:
             dup_id = duplicate["upload_id"]
-            logger.warning(f"File upload rejected: Duplicate content detected. Existing Upload ID: {dup_id}")
+            logger.warning(
+                f"File upload rejected: Duplicate content detected. Existing Upload ID: {dup_id}"
+            )
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={
@@ -73,19 +78,20 @@ class UploadService:
         # 5c. Feed Cleaned DataFrame into the Decision Intelligence Engine
         try:
             from app.decision_engine.decision_service import decision_service
-            decision_service.refresh_feed_from_dataframe(df_cleaned, dataset_type or "Sales")
+
+            decision_service.refresh_feed_from_dataframe(
+                df_cleaned, dataset_type or "Sales"
+            )
         except Exception as e:
             logger.error(f"Failed to refresh decision feed on upload: {str(e)}")
 
         # 6. Upload original file to Cloud Storage
         upload_id = str(uuid.uuid4())
         blob_name = f"uploads/{uploaded_by}/{upload_id}_{filename}"
-        
+
         try:
             gcs_url = gcs_storage_service.upload_bytes(
-                blob_name=blob_name,
-                data=file_bytes,
-                content_type=content_type
+                blob_name=blob_name, data=file_bytes, content_type=content_type
             )
             gcs_uri = f"gs://{gcs_storage_service.config.bucket_name}/{blob_name}"
         except Exception as e:
@@ -98,7 +104,9 @@ class UploadService:
             workspace = uploaded_by.split("@")[-1].split(".")[0]
 
         try:
-            bq_result = bq_ingestion_service.load_dataframe(df=df_cleaned, workspace=workspace)
+            bq_result = bq_ingestion_service.load_dataframe(
+                df=df_cleaned, workspace=workspace
+            )
             dataset = bq_result["dataset"]
             table = bq_result["table"]
             job_id = bq_result["job_id"]
@@ -131,7 +139,9 @@ class UploadService:
         """Retrieves file upload metadata by UUID."""
         record = metadata_store.get_by_id(upload_id)
         if not record:
-            logger.warning(f"Metadata lookup failed: Upload ID '{upload_id}' not found.")
+            logger.warning(
+                f"Metadata lookup failed: Upload ID '{upload_id}' not found."
+            )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"File upload with ID '{upload_id}' not found.",
@@ -148,7 +158,7 @@ class UploadService:
         """Deletes upload records from the catalog and removes the associated GCS blob."""
         # 1. Fetch metadata to retrieve GCS URI
         record = UploadService.get_upload(upload_id)
-        
+
         # 2. Attempt deleting the GCS blob if it exists
         gcs_uri = record.get("gcs_uri")
         if gcs_uri:
@@ -159,13 +169,17 @@ class UploadService:
                     blob_name = gcs_uri.split(bucket_prefix)[-1]
                     gcs_storage_service.delete_blob(blob_name)
             except Exception as e:
-                logger.error(f"Failed to delete GCS blob associated with upload '{upload_id}': {str(e)}")
+                logger.error(
+                    f"Failed to delete GCS blob associated with upload '{upload_id}': {str(e)}"
+                )
                 # Continue soft deleting metadata even if GCS deletion fails to keep states synchronized
-        
+
         # 3. Perform soft delete from catalog
         success = metadata_store.delete_by_id(upload_id)
         if not success:
-            logger.warning(f"Delete operation failed: Upload ID '{upload_id}' not found.")
+            logger.warning(
+                f"Delete operation failed: Upload ID '{upload_id}' not found."
+            )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"File upload with ID '{upload_id}' not found.",

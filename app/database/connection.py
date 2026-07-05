@@ -1,5 +1,6 @@
 import logging
 from typing import Optional
+
 from google.cloud import bigquery, storage
 from google.oauth2 import service_account
 
@@ -22,8 +23,8 @@ class GCPClientFactory:
         cred_path = settings.GOOGLE_APPLICATION_CREDENTIALS
         if cred_path:
             try:
-                self._credentials = service_account.Credentials.from_service_account_file(
-                    cred_path
+                self._credentials = (
+                    service_account.Credentials.from_service_account_file(cred_path)
                 )
                 logger.info(f"Loaded GCP credentials from path: {cred_path}")
             except Exception as e:

@@ -1,4 +1,5 @@
 import logging
+
 from app.decision_engine.utils import clamp
 
 logger = logging.getLogger("app.decision_engine.priority_engine")
@@ -23,7 +24,7 @@ class PriorityEngine:
         """
         # Normalize financial impact: assume $50,000 as base ceiling for 100/100 score
         financial_score = clamp((abs(financial_impact) / 50000.0) * 100.0)
-        
+
         urg_score = clamp(urgency)
         conf_score = clamp(confidence)
         crit_score = clamp(criticality)

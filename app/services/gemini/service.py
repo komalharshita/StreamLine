@@ -1,9 +1,9 @@
 import logging
 from abc import ABC, abstractmethod
 from typing import Optional
+
 from google import genai
 from google.genai import types
-from google.genai.errors import APIError
 
 from app.core.config import settings
 from app.schemas.chat import ChatMessage, ChatResponse
@@ -17,7 +17,10 @@ class GeminiServiceInterface(BaseService, ABC):
 
     @abstractmethod
     def generate_chat_response(
-        self, prompt: str, history: list[ChatMessage], dataset_context: Optional[str] = None
+        self,
+        prompt: str,
+        history: list[ChatMessage],
+        dataset_context: Optional[str] = None,
     ) -> ChatResponse:
         """Sends chat request to Gemini model, optionally grounding on database context."""
         pass
@@ -42,34 +45,41 @@ class GeminiService(GeminiServiceInterface):
         return None
 
     def generate_chat_response(
-        self, prompt: str, history: list[ChatMessage], dataset_context: Optional[str] = None
+        self,
+        prompt: str,
+        history: list[ChatMessage],
+        dataset_context: Optional[str] = None,
     ) -> ChatResponse:
         logger.info(f"Generating Gemini response for prompt length: {len(prompt)}")
-        
+
         client = self._get_client()
         if not client:
-            logger.warning("Gemini Client or API Key is missing. Falling back to mock assistant response.")
+            logger.warning(
+                "Gemini Client or API Key is missing. Falling back to mock assistant response."
+            )
             return self._generate_mock_response(prompt, dataset_context)
 
         try:
             # Grounding prompt augmentation if table reference is specified
             context_prefix = ""
             if dataset_context:
-                context_prefix = (
-                    f"[System Context: Ground your answer using the data fields of BigQuery table: {dataset_context}]\n"
-                )
+                context_prefix = f"[System Context: Ground your answer using the data fields of BigQuery table: {dataset_context}]\n"
 
             # Build history list for google-genai Content list
             contents = []
             for msg in history:
                 role = "user" if msg.role == "user" else "model"
                 contents.append(
-                    types.Content(role=role, parts=[types.Part.from_text(text=msg.content)])
+                    types.Content(
+                        role=role, parts=[types.Part.from_text(text=msg.content)]
+                    )
                 )
 
             full_prompt = f"{context_prefix}{prompt}"
             contents.append(
-                types.Content(role="user", parts=[types.Part.from_text(text=full_prompt)])
+                types.Content(
+                    role="user", parts=[types.Part.from_text(text=full_prompt)]
+                )
             )
 
             # Generate content
@@ -77,24 +87,35 @@ class GeminiService(GeminiServiceInterface):
                 model=self.model_name,
                 contents=contents,
             )
-            
+
             return ChatResponse(
                 response=response.text or "",
                 sources=[dataset_context] if dataset_context else [],
-                token_usage=response.usage_metadata.total_token_count if response.usage_metadata else 0,
+                token_usage=(
+                    response.usage_metadata.total_token_count
+                    if response.usage_metadata
+                    else 0
+                ),
             )
         except Exception as e:
             logger.error(f"Gemini API invocation failed: {str(e)}")
-            return self._generate_mock_response(prompt, dataset_context, error_msg=str(e))
+            return self._generate_mock_response(
+                prompt, dataset_context, error_msg=str(e)
+            )
 
     def _generate_mock_response(
-        self, prompt: str, dataset_context: Optional[str], error_msg: Optional[str] = None
+        self,
+        prompt: str,
+        dataset_context: Optional[str],
+        error_msg: Optional[str] = None,
     ) -> ChatResponse:
         """Generates placeholder response for local runs and fallbacks."""
-        grounding_msg = f" (grounded on schema '{dataset_context}')" if dataset_context else ""
+        grounding_msg = (
+            f" (grounded on schema '{dataset_context}')" if dataset_context else ""
+        )
         text = (
             f"### StreamLine Assistant\n\n"
-            f"I received your query: *\"{prompt}\"*{grounding_msg}.\n\n"
+            f'I received your query: *"{prompt}"*{grounding_msg}.\n\n'
             f"This is a placeholder response. In production, this module connects to "
             f"the **{self.model_name}** endpoint to analyze data tables."
         )

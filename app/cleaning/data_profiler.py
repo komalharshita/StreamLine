@@ -1,6 +1,7 @@
 import logging
 import re
 from typing import Any
+
 import pandas as pd
 
 logger = logging.getLogger("app.cleaning.data_profiler")
@@ -43,7 +44,9 @@ class DataProfiler:
             return "Percentage"
 
         # 4. Check currency format
-        currency_pattern = re.compile(r"^[\$\u20ac\u00a3\u00a5]?\s*[-+]?[\d,]*\.?\d+\s*$")
+        currency_pattern = re.compile(
+            r"^[\$\u20ac\u00a3\u00a5]?\s*[-+]?[\d,]*\.?\d+\s*$"
+        )
         if any(val.startswith(("$", "€", "£", "¥")) for val in sample) and all(
             currency_pattern.match(val) for val in sample
         ):
@@ -82,7 +85,7 @@ class DataProfiler:
             # Inferred logical types
             inferred_type = cls.infer_column_type(df[col])
             profile["data_types"][str(col)] = inferred_type
-            
+
             # Missing value counts
             missing_count = int(df[col].isna().sum())
             profile["missing_counts"][str(col)] = missing_count
