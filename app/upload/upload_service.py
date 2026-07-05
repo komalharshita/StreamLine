@@ -70,6 +70,13 @@ class UploadService:
         cleaned_rows = len(df_cleaned)
         cleaned_cols = len(df_cleaned.columns)
 
+        # 5c. Feed Cleaned DataFrame into the Decision Intelligence Engine
+        try:
+            from app.decision_engine.decision_service import decision_service
+            decision_service.refresh_feed_from_dataframe(df_cleaned, dataset_type or "Sales")
+        except Exception as e:
+            logger.error(f"Failed to refresh decision feed on upload: {str(e)}")
+
         # 6. Upload original file to Cloud Storage
         upload_id = str(uuid.uuid4())
         blob_name = f"uploads/{uploaded_by}/{upload_id}_{filename}"

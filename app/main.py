@@ -17,6 +17,7 @@ from app.api.v1 import (
     upload,
 )
 from app.upload import upload_router
+from app.decision_engine.router import router as decision_feed_router
 from app.core.config import settings
 from app.core.logging import setup_logging
 from app.core.middleware import RequestLoggingMiddleware
@@ -99,6 +100,7 @@ app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Aut
 app.include_router(
     upload_router.router, prefix=settings.API_V1_STR, tags=["Upload"]
 )
+app.include_router(decision_feed_router)
 app.include_router(
     dashboard.router, prefix=f"{settings.API_V1_STR}/dashboard", tags=["Dashboard"]
 )
