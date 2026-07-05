@@ -29,7 +29,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY app/ ./app/
 
 # Expose FastAPI port
-EXPOSE 8000
+EXPOSE 8080
 
 # Environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -45,6 +45,6 @@ USER appuser
 
 # Health check setup for container monitoring using python urllib
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)" || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=5)" || exit 1
 
-ENTRYPOINT ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
