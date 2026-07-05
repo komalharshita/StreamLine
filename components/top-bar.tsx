@@ -242,7 +242,7 @@ export function TopBar({ onChatOpen }: TopBarProps) {
           {/* Chat Copilot Trigger */}
           <button 
             onClick={onChatOpen}
-            className="px-3.5 py-2 border border-border bg-card/60 hover:bg-card rounded-lg text-xs font-semibold text-slate-200 transition-all duration-150 hover:border-slate-700 active:bg-muted cursor-pointer"
+            className="px-3.5 py-2 border border-accent/40 bg-accent/5 hover:bg-accent/15 rounded-lg text-xs font-semibold text-accent transition-all duration-150 cursor-pointer shadow-[0_0_8px_rgba(0,212,255,0.1)]"
           >
             Open Copilot
           </button>
@@ -251,7 +251,7 @@ export function TopBar({ onChatOpen }: TopBarProps) {
           <button
             onClick={handleUploadClick}
             disabled={loadingPreview || importing}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-secondary hover:bg-secondary/90 active:bg-secondary/80 disabled:opacity-50 text-white rounded-lg text-xs font-semibold shadow-sm shadow-secondary/10 hover:shadow-secondary/15 transition-all duration-150 disabled:cursor-not-allowed border border-secondary/10 cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-accent hover:bg-accent/90 active:scale-95 disabled:opacity-50 text-primary-foreground rounded-lg text-xs font-bold shadow-[0_0_12px_rgba(0,212,255,0.35)] transition-all duration-150 disabled:cursor-not-allowed border border-accent/20 cursor-pointer"
           >
             {loadingPreview ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -442,7 +442,7 @@ export function TopBar({ onChatOpen }: TopBarProps) {
               </button>
               <button 
                 onClick={handleConfirmImport}
-                className="flex items-center gap-1.5 px-4.5 py-2 bg-secondary hover:bg-secondary/90 text-white rounded-lg text-xs font-semibold shadow-sm shadow-secondary/15 border border-secondary/15 transition-all duration-150 cursor-pointer"
+                className="flex items-center gap-1.5 px-4.5 py-2 bg-accent hover:bg-accent/90 text-primary-foreground rounded-lg text-xs font-bold shadow-[0_0_10px_rgba(0,212,255,0.3)] border border-accent/20 transition-all duration-150 cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5" />
                 <span>Confirm Import</span>

@@ -102,10 +102,10 @@ export function AIChat({ setIsOpen }: AIChatProps) {
 
   return (
     <div 
-      className="fixed bottom-0 right-0 w-full h-full md:w-[380px] md:h-[620px] bg-background border-l border-t border-border/80 rounded-tl-2xl flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-50 md:rounded-2xl md:bottom-6 md:right-6 md:border"
+      className="fixed bottom-0 right-0 w-full h-full md:w-[380px] md:h-[620px] bg-slate-950 border-l border-t border-accent/30 rounded-tl-2xl flex flex-col shadow-[0_0_30px_rgba(0,212,255,0.15)] z-50 md:rounded-2xl md:bottom-6 md:right-6 md:border"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border/60 select-none bg-card/40">
+      <div className="flex items-center justify-between p-4 border-b border-border/60 select-none bg-slate-900/60">
         <div className="flex items-center gap-2.5">
           <div className="relative w-7 h-7 rounded-lg overflow-hidden border border-border/60 flex-shrink-0 bg-background/50 flex items-center justify-center">
             <Image 
@@ -143,8 +143,8 @@ export function AIChat({ setIsOpen }: AIChatProps) {
             <div
               className={`max-w-[85%] text-xs px-3.5 py-2.5 shadow-sm leading-relaxed ${
                 msg.sender === 'user'
-                  ? 'bg-gradient-to-r from-accent/90 to-secondary/90 text-white rounded-2xl rounded-tr-xs font-semibold'
-                  : 'bg-card/85 border border-border/40 text-slate-300 rounded-2xl rounded-tl-xs'
+                  ? 'bg-gradient-to-r from-accent to-secondary text-white rounded-2xl rounded-tr-xs font-semibold'
+                  : 'bg-slate-900 border border-border/60 text-slate-50 rounded-2xl rounded-tl-xs'
               }`}
             >
               {msg.text}
@@ -153,9 +153,9 @@ export function AIChat({ setIsOpen }: AIChatProps) {
         ))}
         {loading && (
           <div className="flex justify-start animate-in fade-in duration-100">
-            <div className="bg-card/60 border border-white/5 text-muted-foreground px-3 py-2 rounded-2xl rounded-tl-xs flex items-center gap-2 shadow-sm text-xs select-none">
+            <div className="bg-slate-900 border border-border/60 text-muted-foreground px-3 py-2 rounded-2xl rounded-tl-xs flex items-center gap-2 shadow-sm text-xs select-none">
               <Loader2 className="w-3.5 h-3.5 animate-spin text-accent" />
-              <span>Analyzing telemetry...</span>
+              <span className="text-slate-200">Analyzing telemetry...</span>
             </div>
           </div>
         )}
@@ -163,14 +163,14 @@ export function AIChat({ setIsOpen }: AIChatProps) {
 
       {/* Suggested Questions */}
       {messages.length === 1 && !loading && (
-        <div className="px-4 py-3.5 border-t border-border/60 bg-background/90 space-y-2 select-none">
-          <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground/70">Try Asking:</p>
+        <div className="px-4 py-3.5 border-t border-border/60 bg-slate-950 space-y-2 select-none">
+          <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground/75">Try Asking:</p>
           <div className="flex flex-col gap-1.5">
             {suggestedQuestions.map((q, i) => (
               <button
                 key={i}
                 onClick={() => handleSend(q)}
-                className="w-full text-left text-xs px-3 py-2 bg-card/45 hover:bg-card border border-border/65 hover:border-accent/30 text-muted-foreground hover:text-slate-200 rounded-lg transition-all duration-150 font-medium cursor-pointer"
+                className="w-full text-left text-xs px-3 py-2 bg-slate-900 hover:bg-slate-900/80 border border-border/80 hover:border-accent/40 text-slate-200 hover:text-white rounded-lg transition-all duration-150 font-medium cursor-pointer"
               >
                 {q}
               </button>
@@ -180,7 +180,7 @@ export function AIChat({ setIsOpen }: AIChatProps) {
       )}
 
       {/* Input Form */}
-      <div className="p-4 border-t border-border/60 bg-card select-none">
+      <div className="p-4 border-t border-border/60 bg-slate-900 select-none">
         <div className="flex gap-2 relative">
           <input
             type="text"
@@ -198,7 +198,7 @@ export function AIChat({ setIsOpen }: AIChatProps) {
           <button
             onClick={() => handleSend()}
             disabled={loading || !input.trim()}
-            className="px-3 bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-all shadow-sm shadow-secondary/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center border border-secondary/10 cursor-pointer"
+            className="px-3 bg-accent text-primary-foreground hover:bg-accent/90 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none rounded-lg transition-all shadow-sm shadow-accent/20 flex items-center justify-center font-bold border border-accent/15 cursor-pointer"
           >
             <Send className="w-3.5 h-3.5" />
           </button>

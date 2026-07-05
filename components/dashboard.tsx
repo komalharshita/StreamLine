@@ -125,7 +125,7 @@ export function Dashboard() {
         <button 
           onClick={loadDashboardData}
           disabled={loading}
-          className="p-2 border border-border bg-card/60 hover:bg-card hover:border-slate-700 text-muted-foreground hover:text-slate-200 rounded-lg transition-all duration-150 disabled:opacity-50 active:bg-muted cursor-pointer"
+          className="p-2 border border-accent/20 hover:border-accent bg-accent/5 hover:bg-accent/15 text-accent rounded-lg transition-all duration-150 disabled:opacity-50 cursor-pointer shadow-[0_0_8px_rgba(0,212,255,0.1)]"
           title="Reload Dashboard"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />

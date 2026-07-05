@@ -113,11 +113,11 @@ export function Reports() {
 
             {/* Actions */}
             <div className="flex justify-end gap-2 border-t border-border/40 pt-3">
-              <button className="flex items-center gap-1 px-3 py-1.5 border border-border bg-card/60 hover:bg-card text-slate-350 rounded-lg text-[10px] font-bold transition-all cursor-pointer">
+              <button className="flex items-center gap-1 px-3 py-1.5 border border-accent/40 bg-accent/5 hover:bg-accent/15 text-accent rounded-lg text-[10px] font-bold transition-all cursor-pointer shadow-[0_0_8px_rgba(0,212,255,0.05)]">
                 <Eye className="w-3.5 h-3.5" />
                 <span>Preview</span>
               </button>
-              <button className="flex items-center gap-1 px-3.5 py-1.5 bg-secondary hover:bg-secondary/90 text-white rounded-lg text-[10px] font-bold transition-all shadow-sm cursor-pointer">
+              <button className="flex items-center gap-1 px-3.5 py-1.5 bg-accent hover:bg-accent/90 text-primary-foreground rounded-lg text-[10px] font-bold transition-all shadow-[0_0_10px_rgba(0,212,255,0.3)] border border-accent/20 cursor-pointer">
                 <Download className="w-3.5 h-3.5" />
                 <span>Download {report.format}</span>
               </button>

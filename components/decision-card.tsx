@@ -131,13 +131,13 @@ export function DecisionCard({
               <div className="flex gap-2">
                 <button 
                   type="button"
-                  className="px-3 py-1.5 border border-border bg-card/60 hover:bg-card hover:border-slate-700 text-slate-300 rounded-lg text-xs font-semibold transition-all duration-150 cursor-pointer"
+                  className="px-3 py-1.5 border border-accent/40 bg-accent/5 hover:bg-accent/15 text-accent rounded-lg text-xs font-semibold transition-all duration-150 cursor-pointer shadow-[0_0_8px_rgba(0,212,255,0.05)]"
                 >
                   View Details
                 </button>
                 <button 
                   type="button"
-                  className="px-3.5 py-1.5 bg-secondary hover:bg-secondary/90 text-white rounded-lg text-xs font-semibold shadow-sm hover:shadow-secondary/15 transition-all duration-150 cursor-pointer"
+                  className="px-3.5 py-1.5 bg-accent hover:bg-accent/90 text-primary-foreground rounded-lg text-xs font-bold shadow-[0_0_10px_rgba(0,212,255,0.3)] border border-accent/20 transition-all duration-150 cursor-pointer"
                 >
                   Resolve
                 </button>

@@ -174,7 +174,7 @@ export function DecisionPilot() {
                           <div className="flex justify-end gap-1.5">
                             <button 
                               onClick={() => handleApprove(run.id)}
-                              className="px-2 py-1 bg-accent text-background hover:opacity-90 rounded text-[10px] font-bold cursor-pointer"
+                              className="px-2.5 py-1 bg-accent text-primary-foreground hover:bg-accent/90 shadow-[0_0_8px_rgba(0,212,255,0.25)] rounded text-[10px] font-bold cursor-pointer border border-accent/20"
                             >
                               Approve
                             </button>

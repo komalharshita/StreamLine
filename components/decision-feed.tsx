@@ -96,7 +96,7 @@ export function DecisionFeed() {
         <button 
           onClick={fetchDecisions}
           disabled={loading}
-          className="p-2 border border-border bg-card/60 hover:bg-card hover:border-slate-700 text-muted-foreground/90 hover:text-slate-200 rounded-lg transition-all duration-150 disabled:opacity-50 active:bg-muted cursor-pointer"
+          className="p-2 border border-accent/20 hover:border-accent bg-accent/5 hover:bg-accent/15 text-accent rounded-lg transition-all duration-150 disabled:opacity-50 cursor-pointer shadow-[0_0_8px_rgba(0,212,255,0.1)]"
           title="Refresh Feed"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -125,10 +125,10 @@ export function DecisionFeed() {
               <button
                 key={priority}
                 onClick={() => setSelectedPriority(priority)}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-all duration-150 capitalize cursor-pointer ${
+                className={`px-3 py-1.5 rounded-md text-xs font-bold tracking-wide transition-all duration-150 capitalize cursor-pointer border ${
                   isActive
-                    ? 'bg-muted text-white shadow-sm'
-                    : 'text-muted-foreground hover:text-slate-200 hover:bg-white/[0.02]'
+                    ? 'bg-accent text-primary-foreground shadow-[0_0_8px_rgba(0,212,255,0.25)] border-accent/25'
+                    : 'text-muted-foreground hover:text-slate-200 hover:bg-white/[0.02] border-transparent'
                 }`}
               >
                 {priority}
@@ -169,7 +169,7 @@ export function DecisionFeed() {
             </div>
             <button 
               onClick={fetchDecisions}
-              className="px-3.5 py-1.5 bg-secondary hover:bg-secondary/90 text-white text-xs font-semibold rounded-lg transition-all duration-150 shadow-sm border border-secondary/10 cursor-pointer"
+              className="px-3.5 py-1.5 bg-accent hover:bg-accent/90 text-primary-foreground text-xs font-bold rounded-lg transition-all duration-150 shadow-[0_0_8px_rgba(0,212,255,0.25)] border border-accent/20 cursor-pointer"
             >
               Retry Connection
             </button>

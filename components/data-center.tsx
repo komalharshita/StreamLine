@@ -66,7 +66,7 @@ export function DataCenter() {
         <button 
           onClick={handleSync}
           disabled={syncing}
-          className="flex items-center gap-1.5 px-3.5 py-2 bg-secondary hover:bg-secondary/90 text-white rounded-lg text-xs font-semibold shadow-sm transition-all duration-150 cursor-pointer"
+          className="flex items-center gap-1.5 px-3.5 py-2 bg-accent hover:bg-accent/90 text-primary-foreground rounded-lg text-xs font-bold shadow-[0_0_10px_rgba(0,212,255,0.3)] border border-accent/20 transition-all duration-150 cursor-pointer"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
           <span>{syncing ? 'Syncing...' : 'Sync Tables'}</span>
