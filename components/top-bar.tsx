@@ -43,7 +43,7 @@ interface PreviewData {
 interface PipelineStatus {
   status: string
   stage: string
-  progress: int
+  progress: number
   estimated_time_remaining: string
   elapsed_time: string
   completed_steps: string[]

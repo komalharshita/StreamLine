@@ -45,7 +45,7 @@ function Button({
   variant = 'default',
   size = 'default',
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: React.ComponentPropsWithoutRef<typeof ButtonPrimitive> & VariantProps<typeof buttonVariants>) {
   return (
     <ButtonPrimitive
       data-slot="button"
@@ -54,5 +54,6 @@ function Button({
     />
   )
 }
+
 
 export { Button, buttonVariants }
