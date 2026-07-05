@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import {
   LayoutDashboard,
   Zap,
@@ -50,16 +51,16 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
         className="h-16 flex items-center px-4 border-b border-border"
       >
         <div className="flex items-center gap-3 ml-1">
-          {/* Custom Premium Geometric Logo Symbol */}
-          <div 
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-base transition-all duration-300 relative overflow-hidden shadow-sm group border border-white/10"
-            style={{
-              background: 'linear-gradient(135deg, var(--accent), #4f46e5)',
-              color: '#ffffff'
-            }}
-          >
-            <span className="relative z-10 font-mono tracking-tighter">S</span>
-            <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+          {/* Custom StreamLine Mask Logo */}
+          <div className="relative w-8 h-8 flex-shrink-0">
+            <Image 
+              src="/logo.png" 
+              alt="StreamLine Logo" 
+              fill
+              sizes="32px"
+              priority
+              className="object-contain rounded-md"
+            />
           </div>
           {!collapsed && (
             <span className="font-semibold text-sm tracking-tight text-white font-sans">
