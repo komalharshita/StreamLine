@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
 import {
   LayoutDashboard,
   Zap,
@@ -16,22 +18,18 @@ import {
   ChevronDown,
 } from 'lucide-react'
 
-interface SidebarProps {
-  activeTab: string
-  setActiveTab: (tab: string) => void
-}
-
-export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
+export function Sidebar() {
+  const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'decision-feed', label: 'Decision Feed', icon: Zap },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'simulation', label: 'Simulation Lab', icon: Beaker },
-    { id: 'pilot', label: 'DecisionPilot', icon: Airplay },
-    { id: 'reports', label: 'Reports', icon: FileText },
-    { id: 'data', label: 'Data Center', icon: Database },
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/feed', label: 'Decision Feed', icon: Zap },
+    { href: '/analytics', label: 'Analytics', icon: BarChart3 },
+    { href: '/simulation', label: 'Simulation Lab', icon: Beaker },
+    { href: '/pilot', label: 'DecisionPilot', icon: Airplay },
+    { href: '/reports', label: 'Reports', icon: FileText },
+    { href: '/data', label: 'Data Center', icon: Database },
   ]
 
   const bottomItems = [
@@ -74,11 +72,11 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon
-          const isActive = activeTab === item.id
+          const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
           return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
+            <Link
+              key={item.href}
+              href={item.href}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 relative group cursor-pointer ${
                 isActive 
                   ? 'bg-white/[0.06] text-white font-medium' 
@@ -97,10 +95,11 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
               {!collapsed && (
                 <span className="text-xs tracking-wide">{item.label}</span>
               )}
-            </button>
+            </Link>
           )
         })}
       </nav>
+
 
       {/* Settings, Profile & Toggle Collapse */}
       <div 

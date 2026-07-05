@@ -2,13 +2,27 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 class ApiClient {
   private baseUrl: string;
-  private defaultHeaders: Record<string, string>;
 
   constructor(baseUrl = BASE_URL) {
     this.baseUrl = baseUrl;
-    this.defaultHeaders = {
-      'Authorization': 'Bearer mock-session-token-12345',
-    };
+  }
+
+  private getAuthorizationHeader(): string {
+    if (typeof window !== 'undefined') {
+      const localToken = localStorage.getItem('access_token');
+      if (localToken) {
+        return `Bearer ${localToken}`;
+      }
+      
+      const cookieMatch = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('access_token='));
+      if (cookieMatch) {
+        return `Bearer ${cookieMatch.split('=')[1]}`;
+      }
+    }
+    // Default fallback to allow local/mock runs before auth is fully established
+    return 'Bearer mock-session-token-12345';
   }
 
   async request(path: string, options: RequestInit & { timeout?: number } = {}) {
@@ -22,12 +36,13 @@ class ApiClient {
       const response = await fetch(url, {
         ...rest,
         headers: {
-          ...this.defaultHeaders,
+          'Authorization': this.getAuthorizationHeader(),
           ...headers,
         },
         signal: controller.signal,
       });
       clearTimeout(id);
+
 
       if (!response.ok) {
         let errData = {};
