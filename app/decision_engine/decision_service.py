@@ -19,9 +19,8 @@ class DecisionService:
         self._feed: dict[str, Decision] = {}
 
         # Seed default mock decisions for demo purposes
-        from app.decision_engine.schemas import Decision
         from datetime import datetime
-        
+
         mock_decisions = [
             Decision(
                 decision_id="mock-dec-1",
