@@ -79,19 +79,19 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 relative group ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 relative group cursor-pointer ${
                 isActive 
                   ? 'bg-white/[0.06] text-white font-medium' 
-                  : 'text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.03]'
+                  : 'text-muted-foreground hover:text-slate-100 hover:bg-white/[0.03]'
               }`}
             >
               {/* Active vertical line indicator */}
               {isActive && (
-                <span className="absolute left-0 top-2.5 bottom-2.5 w-1 rounded-r-md bg-accent" />
+                <span className="absolute left-0 top-2.5 bottom-2.5 w-1 rounded-r-md bg-accent shadow-[0_0_8px_rgba(0,212,255,0.4)]" />
               )}
               
               <Icon className={`w-4 h-4 flex-shrink-0 transition-colors ${
-                isActive ? 'text-accent' : 'text-zinc-400 group-hover:text-zinc-200'
+                isActive ? 'text-accent' : 'text-muted-foreground group-hover:text-slate-200'
               }`} />
               
               {!collapsed && (
@@ -111,9 +111,9 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           return (
             <button
               key={item.id}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.03] group"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 text-muted-foreground hover:text-slate-100 hover:bg-white/[0.03] group cursor-pointer"
             >
-              <Icon className="w-4 h-4 flex-shrink-0 text-zinc-400 group-hover:text-zinc-200" />
+              <Icon className="w-4 h-4 flex-shrink-0 text-muted-foreground group-hover:text-slate-200" />
               {!collapsed && <span className="text-xs tracking-wide">{item.label}</span>}
             </button>
           )
@@ -122,14 +122,14 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
         {/* Collapse Button */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.03] mt-2 border-t border-border/50 pt-3"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 text-muted-foreground/60 hover:text-slate-200 hover:bg-white/[0.03] mt-2 border-t border-border/50 pt-3 cursor-pointer"
         >
           <ChevronDown 
-            className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${
+            className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 text-muted-foreground/50 ${
               collapsed ? '-rotate-90' : 'rotate-90'
             }`} 
           />
-          {!collapsed && <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-500">Collapse</span>}
+          {!collapsed && <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground/60">Collapse</span>}
         </button>
       </div>
     </div>
