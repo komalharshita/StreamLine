@@ -2,7 +2,7 @@ import logging
 import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Sequence
+from typing import Optional, Sequence
 
 from app.models.domain import SimulationScenario
 from app.repositories.bigquery_repository import SimulationScenarioRepositoryInterface

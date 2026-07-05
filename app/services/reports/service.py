@@ -1,7 +1,7 @@
 import logging
 import uuid
 from abc import ABC, abstractmethod
-from typing import Sequence
+from typing import Optional, Sequence
 
 from app.models.domain import AnalyticsReport
 from app.repositories.bigquery_repository import AnalyticsReportRepositoryInterface
