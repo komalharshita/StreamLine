@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Optional
 
 import firebase_admin
 from fastapi import Depends, HTTPException, status
@@ -11,7 +11,7 @@ from app.core.config import settings
 logger = logging.getLogger("app.security")
 
 # HTTP Bearer scheme setup
-security_scheme = HTTPBearer(auto_error=True)
+security_scheme = HTTPBearer(auto_error=False)
 
 # Initialize Firebase Admin SDK if not already initialized
 if not settings.FIREBASE_MOCK_AUTH:
@@ -65,11 +65,21 @@ security_manager = SecurityManager()
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_scheme),
 ) -> dict[str, Any]:
     """FastAPI dependency to secure endpoints.
 
     Retrieves and validates the authentication token, returning the user identity.
     """
+    if settings.FIREBASE_MOCK_AUTH:
+        # Bypass authentication in mock mode
+        return security_manager.verify_token("")
+
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authenticated",
+        )
+
     token = credentials.credentials
     return security_manager.verify_token(token)
