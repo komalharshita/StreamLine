@@ -7,51 +7,60 @@
 :root {
   color-scheme: dark;
   
-  /* StreamLine Color Palette */
-  --background: #0B1020;
-  --foreground: #FFFFFF;
-  --card: #111827;
-  --card-foreground: #FFFFFF;
-  --popover: #111827;
-  --popover-foreground: #FFFFFF;
-  --primary: #00D4FF;
-  --primary-foreground: #0B1020;
-  --secondary: #3B82F6;
-  --secondary-foreground: #FFFFFF;
-  --muted: #1F2937;
-  --muted-foreground: #94A3B8;
-  --accent: #00D4FF;
-  --accent-foreground: #0B1020;
-  --destructive: #EF4444;
+  /* Premium SaaS Neutral Zinc & Deep Indigo Palette */
+  --background: #09090b;
+  --foreground: #fafafa;
+  
+  --card: #18181b;
+  --card-foreground: #fafafa;
+  
+  --popover: #18181b;
+  --popover-foreground: #fafafa;
+  
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  
+  --secondary: #27272a;
+  --secondary-foreground: #fafafa;
+  
+  --muted: #18181b;
+  --muted-foreground: #a1a1aa;
+  
+  --accent: #6366f1;
+  --accent-foreground: #ffffff;
+  
+  --destructive: #f43f5e;
+  
   --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.12);
-  --ring: #00D4FF;
+  --input: rgba(255, 255, 255, 0.06);
+  --ring: rgba(99, 102, 241, 0.4);
   
   /* Status colors */
-  --success: #22C55E;
-  --warning: #F59E0B;
-  --danger: #EF4444;
-  --text-primary: #FFFFFF;
-  --text-secondary: #94A3B8;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #f43f5e;
+  
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
   
   /* Chart colors */
-  --chart-1: #00D4FF;
-  --chart-2: #3B82F6;
-  --chart-3: #22C55E;
-  --chart-4: #F59E0B;
-  --chart-5: #EF4444;
+  --chart-1: #6366f1;
+  --chart-2: #3b82f6;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #ef4444;
   
   /* Sidebar */
-  --sidebar: #111827;
-  --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: #00D4FF;
-  --sidebar-primary-foreground: #0B1020;
-  --sidebar-accent: #3B82F6;
-  --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
-  --sidebar-ring: #00D4FF;
+  --sidebar: #09090b;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #6366f1;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #18181b;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-ring: rgba(99, 102, 241, 0.4);
   
-  --radius: 1rem;
+  --radius: 0.75rem;
 }
 
 @layer base {
@@ -62,9 +71,45 @@
   html {
     background-color: var(--background);
     color: var(--foreground);
+    scroll-behavior: smooth;
   }
   body {
     background-color: var(--background);
     color: var(--foreground);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  
+  /* Custom scrollbar matching premium OS defaults */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Selection Highlight */
+  ::selection {
+    background-color: rgba(99, 102, 241, 0.2);
+    color: #ffffff;
+  }
+}
+
+@layer utilities {
+  .bg-glass {
+    background-color: rgba(24, 24, 27, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  .border-glow {
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.15), 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
 }

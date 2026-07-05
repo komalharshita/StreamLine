@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, CheckCircle, AlertCircle, MessageCircle } from 'lucide-react'
+import { ChevronDown, CheckCircle, MessageCircle, DollarSign, Target } from 'lucide-react'
 
 interface DecisionCardProps {
   priority: 'high' | 'medium' | 'low'
@@ -14,9 +14,9 @@ interface DecisionCardProps {
 }
 
 const priorityStyles = {
-  high: 'bg-danger/20 text-danger border-danger/30',
-  medium: 'bg-warning/20 text-warning border-warning/30',
-  low: 'bg-secondary/20 text-secondary border-secondary/30',
+  high: 'bg-rose-500/10 text-rose-400 border-rose-500/25',
+  medium: 'bg-amber-500/10 text-amber-400 border-amber-500/25',
+  low: 'bg-zinc-800 text-zinc-300 border-zinc-700/60',
 }
 
 const priorityLabel = {
@@ -37,76 +37,111 @@ export function DecisionCard({
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <div className="bg-card border border-border rounded-xl p-6 hover:border-accent transition-all cursor-pointer group">
-      <div onClick={() => setExpanded(!expanded)} className="space-y-4">
+    <div 
+      onClick={() => setExpanded(!expanded)}
+      className={`bg-zinc-900/40 hover:bg-zinc-900/60 border border-border/80 hover:border-zinc-700 rounded-xl p-5 transition-all duration-200 cursor-pointer select-none group space-y-4 shadow-sm ${
+        expanded ? 'bg-zinc-900/60 border-zinc-700' : ''
+      }`}
+    >
+      <div className="space-y-3">
         {/* Header */}
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <span className={`text-xs font-bold px-3 py-1 rounded-lg border ${priorityStyles[priority]}`}>
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1.5 flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${priorityStyles[priority]}`}>
                 {priorityLabel[priority]}
               </span>
-              <span className="text-xs text-text-secondary">{confidence}% Confidence</span>
+              <span className="text-[10px] text-zinc-500 font-semibold px-2 py-0.5 bg-zinc-900 border border-white/5 rounded-full">
+                {confidence}% Confidence
+              </span>
             </div>
-            <h3 className="text-lg font-bold group-hover:text-accent transition-colors">{title}</h3>
+            <h3 className="text-sm font-semibold text-zinc-200 group-hover:text-indigo-400 transition-colors duration-150 leading-snug">
+              {title}
+            </h3>
           </div>
-          <button className={`transition-transform ${expanded ? 'rotate-180' : ''}`}>
-            <ChevronDown className="w-5 h-5 text-text-secondary" />
+          <button 
+            type="button"
+            className={`p-1 rounded-lg hover:bg-white/[0.04] text-zinc-500 hover:text-zinc-300 transition-all ${
+              expanded ? 'rotate-180 text-zinc-300' : ''
+            }`}
+          >
+            <ChevronDown className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Quick Preview */}
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-text-secondary text-xs mb-1">Root Cause</p>
-            <p className="font-medium">{rootCause}</p>
+        {/* Quick Preview Grid */}
+        <div className="grid grid-cols-2 gap-4 pt-1 text-xs">
+          <div className="space-y-1">
+            <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Root Cause</p>
+            <p className="font-medium text-zinc-300 truncate">{rootCause}</p>
           </div>
-          <div>
-            <p className="text-text-secondary text-xs mb-1">Financial Impact</p>
-            <p className="font-medium text-accent">{impact}</p>
+          <div className="space-y-1">
+            <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Financial Leverage</p>
+            <p className="font-medium text-indigo-400 truncate">{impact}</p>
           </div>
         </div>
 
-        {/* Expanded Content */}
+        {/* Expanded Accordion Panel */}
         {expanded && (
-          <div className="space-y-4 pt-4 border-t border-border">
-            {/* Recommendation */}
-            <div className="bg-secondary/10 border border-secondary/30 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+          <div 
+            onClick={(e) => e.stopPropagation()} // Prevent accordion toggle when clicking inside
+            className="space-y-4 pt-4 border-t border-border/60 animate-in fade-in slide-in-from-top-1 duration-200 cursor-default"
+          >
+            {/* Recommendation Document Box */}
+            <div className="bg-indigo-650/[0.02] border border-indigo-500/15 rounded-lg p-4 space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+                <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400">AI Recommendation</span>
+              </div>
+              <p className="text-xs text-zinc-300 leading-relaxed font-medium">
+                {recommendation}
+              </p>
+            </div>
+
+            {/* Expected ROI Summary Cards */}
+            <div className="grid grid-cols-2 gap-3.5">
+              <div className="flex items-center gap-3 p-3 bg-zinc-900 border border-border/60 rounded-lg">
+                <div className="w-8 h-8 rounded bg-zinc-800/80 flex items-center justify-center text-indigo-400 border border-white/5">
+                  <Target className="w-4 h-4" />
+                </div>
                 <div>
-                  <p className="text-xs font-bold text-text-secondary mb-1">AI Recommendation</p>
-                  <p className="text-sm font-medium">{recommendation}</p>
+                  <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider">Expected ROI</p>
+                  <p className="text-sm font-bold text-indigo-400 font-mono">{expectedROI}%</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 p-3 bg-zinc-900 border border-border/60 rounded-lg">
+                <div className="w-8 h-8 rounded bg-zinc-800/80 flex items-center justify-center text-emerald-400 border border-white/5">
+                  <DollarSign className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider">Potential Gain</p>
+                  <p className="text-sm font-bold text-emerald-400 font-mono">${(expectedROI * 5).toLocaleString()}K</p>
                 </div>
               </div>
             </div>
 
-            {/* Expected ROI */}
-            <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-              <div>
-                <p className="text-xs text-text-secondary">Expected ROI</p>
-                <p className="text-2xl font-bold text-accent">{expectedROI}%</p>
+            {/* Accordion Actions & Comments Footer */}
+            <div className="flex items-center justify-between gap-4 pt-2">
+              <div className="flex items-center gap-2 text-zinc-500 hover:text-zinc-300 transition-colors text-[10px] font-semibold cursor-pointer">
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>2 comments</span>
               </div>
-              <div className="text-right">
-                <p className="text-xs text-text-secondary">Potential Gain</p>
-                <p className="text-lg font-bold">${expectedROI * 5}K</p>
+              
+              <div className="flex gap-2">
+                <button 
+                  type="button"
+                  className="px-3 py-1.5 border border-border bg-zinc-900/60 hover:bg-zinc-900 hover:border-zinc-700 text-zinc-300 rounded-lg text-xs font-semibold transition-all duration-150"
+                >
+                  View Details
+                </button>
+                <button 
+                  type="button"
+                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-sm hover:shadow-indigo-500/10 transition-all duration-150"
+                >
+                  Resolve
+                </button>
               </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <button className="flex-1 bg-accent text-card px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity text-sm">
-                Resolve
-              </button>
-              <button className="flex-1 border border-border px-4 py-2 rounded-lg font-medium hover:bg-muted transition-colors text-sm">
-                View Details
-              </button>
-            </div>
-
-            {/* Chat Section */}
-            <div className="flex items-center gap-2 text-sm text-text-secondary hover:text-foreground transition-colors">
-              <MessageCircle className="w-4 h-4" />
-              <span>2 comments</span>
             </div>
           </div>
         )}

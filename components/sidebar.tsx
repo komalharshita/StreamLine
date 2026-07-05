@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import {
   LayoutDashboard,
   Zap,
@@ -14,7 +13,6 @@ import {
   Settings,
   User,
   ChevronDown,
-  Logo,
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -43,90 +41,94 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
 
   return (
     <div 
-      className={`transition-all duration-300 flex flex-col ${collapsed ? 'w-20' : 'w-64'}`}
-      style={{ 
-        backgroundColor: 'var(--card)',
-        borderRight: '1px solid var(--border)',
-        color: 'var(--foreground)'
-      }}
+      className={`relative transition-all duration-300 ease-in-out flex flex-col h-screen select-none ${
+        collapsed ? 'w-[72px]' : 'w-64'
+      } bg-background border-r border-border`}
     >
-      {/* Logo */}
+      {/* Brand Logo Header */}
       <div 
-        className="p-6 flex items-center gap-3"
-        style={{ 
-          borderBottom: '1px solid var(--border)'
-        }}
+        className="h-16 flex items-center px-4 border-b border-border"
       >
-        <div 
-          className="w-10 h-10 bg-gradient-to-br rounded-lg flex items-center justify-center font-bold text-sm"
-          style={{
-            backgroundImage: 'linear-gradient(135deg, var(--accent), var(--secondary))',
-            color: 'var(--card)'
-          }}
-        >
-          S
+        <div className="flex items-center gap-3 ml-1">
+          {/* Custom Premium Geometric Logo Symbol */}
+          <div 
+            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-base transition-all duration-300 relative overflow-hidden shadow-sm group border border-white/10"
+            style={{
+              background: 'linear-gradient(135deg, var(--accent), #4f46e5)',
+              color: '#ffffff'
+            }}
+          >
+            <span className="relative z-10 font-mono tracking-tighter">S</span>
+            <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+          {!collapsed && (
+            <span className="font-semibold text-sm tracking-tight text-white font-sans">
+              StreamLine
+            </span>
+          )}
         </div>
-        {!collapsed && <span className="font-bold text-lg">StreamLine</span>}
       </div>
 
-      {/* Menu Items */}
-      <nav className="flex-1 p-4 space-y-2 overflow-auto">
+      {/* Navigation Menu */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon
+          const isActive = activeTab === item.id
           return (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                activeTab === item.id
-                  ? 'font-semibold'
-                  : 'hover:opacity-80'
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 relative group ${
+                isActive 
+                  ? 'bg-white/[0.06] text-white font-medium' 
+                  : 'text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.03]'
               }`}
-              style={{
-                backgroundColor: activeTab === item.id ? 'var(--accent)' : 'transparent',
-                color: activeTab === item.id ? 'var(--card)' : 'var(--text-secondary)'
-              }}
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span className="text-sm">{item.label}</span>}
+              {/* Active vertical line indicator */}
+              {isActive && (
+                <span className="absolute left-0 top-2.5 bottom-2.5 w-1 rounded-r-md bg-accent" />
+              )}
+              
+              <Icon className={`w-4 h-4 flex-shrink-0 transition-colors ${
+                isActive ? 'text-accent' : 'text-zinc-400 group-hover:text-zinc-200'
+              }`} />
+              
+              {!collapsed && (
+                <span className="text-xs tracking-wide">{item.label}</span>
+              )}
             </button>
           )
         })}
       </nav>
 
-      {/* Bottom Menu */}
+      {/* Settings, Profile & Toggle Collapse */}
       <div 
-        className="p-4 space-y-2"
-        style={{ 
-          borderTop: '1px solid var(--border)'
-        }}
+        className="px-3 py-4 border-t border-border space-y-1 bg-background"
       >
         {bottomItems.map((item) => {
           const Icon = item.icon
           return (
             <button
               key={item.id}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all hover:opacity-80"
-              style={{
-                color: 'var(--text-secondary)'
-              }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.03] group"
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span className="text-sm">{item.label}</span>}
+              <Icon className="w-4 h-4 flex-shrink-0 text-zinc-400 group-hover:text-zinc-200" />
+              {!collapsed && <span className="text-xs tracking-wide">{item.label}</span>}
             </button>
           )
         })}
 
-        {/* Toggle Collapse */}
+        {/* Collapse Button */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all mt-4 hover:opacity-80"
-          style={{
-            color: 'var(--text-secondary)'
-          }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.03] mt-2 border-t border-border/50 pt-3"
         >
-          <ChevronDown className={`w-5 h-5 flex-shrink-0 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
-          {!collapsed && <span className="text-sm text-xs">Collapse</span>}
+          <ChevronDown 
+            className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${
+              collapsed ? '-rotate-90' : 'rotate-90'
+            }`} 
+          />
+          {!collapsed && <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-500">Collapse</span>}
         </button>
       </div>
     </div>

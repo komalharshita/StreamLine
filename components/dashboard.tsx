@@ -91,10 +91,7 @@ export function Dashboard() {
 
   // Extract KPI card data
   const findKPI = (key: string) => kpis.find(k => k.key === key)
-  const totalRevenue = findKPI('total_revenue')
-  const activeCustomers = findKPI('active_customers')
-  const churnRate = findKPI('churn_rate')
-
+  
   // Calculate dynamic stats from decision list
   const criticalCount = decisions.filter(d => d.priority_level === 'Critical').length
   const highCount = decisions.filter(d => d.priority_level === 'High').length
@@ -118,18 +115,17 @@ export function Dashboard() {
   }
 
   return (
-    <div className="p-8 space-y-8">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
-          <p className="text-text-secondary">Welcome back! Here&apos;s your business intelligence snapshot.</p>
+    <div className="p-8 max-w-7xl mx-auto space-y-8 select-none">
+      {/* Header Section */}
+      <div className="flex justify-between items-center border-b border-border/40 pb-5">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight text-white font-sans">Dashboard</h1>
+          <p className="text-xs text-zinc-400">Welcome back! Here's your workspace telemetry and intelligence snapshot.</p>
         </div>
         <button 
           onClick={loadDashboardData}
           disabled={loading}
-          className="p-2 border rounded-lg hover:bg-muted transition-colors disabled:opacity-50"
-          style={{ borderColor: 'var(--border)' }}
+          className="p-2 border border-border bg-zinc-900/60 hover:bg-zinc-900 hover:border-zinc-700 text-zinc-400 hover:text-zinc-200 rounded-lg transition-all duration-150 disabled:opacity-50 active:bg-zinc-800"
           title="Reload Dashboard"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -137,26 +133,29 @@ export function Dashboard() {
       </div>
 
       {error && (
-        <div className="p-4 bg-danger/10 border border-danger/30 text-danger rounded-xl flex items-center justify-between">
-          <p className="text-sm font-medium">{error}</p>
+        <div className="p-3.5 bg-rose-500/5 border border-rose-500/10 text-rose-400 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+          <p className="text-xs font-semibold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            {error}
+          </p>
           <button 
             onClick={loadDashboardData}
-            className="text-xs underline font-semibold hover:opacity-80"
+            className="text-[10px] uppercase font-bold tracking-wider hover:underline text-rose-300"
           >
             Retry Connection
           </button>
         </div>
       )}
 
-      {/* KPI Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* KPI Blocks */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Business Health Score"
           value={loading ? '-' : String(Math.max(15, 100 - riskScoreValue))}
           unit="%"
           trend={loading ? 0 : decisions.length > 3 ? -4 : 2}
           color="accent"
-          icon={<Zap className="w-5 h-5" />}
+          icon={<Zap className="w-4.5 h-4.5" />}
         />
         <KPICard
           title="Active Decisions"
@@ -164,7 +163,7 @@ export function Dashboard() {
           unit=" actions"
           trend={loading ? 0 : decisions.length}
           color="secondary"
-          icon={<AlertCircle className="w-5 h-5" />}
+          icon={<AlertCircle className="w-4.5 h-4.5" />}
         />
         <KPICard
           title="Avg Expected ROI"
@@ -172,7 +171,7 @@ export function Dashboard() {
           unit="%"
           trend={6.5}
           color="success"
-          icon={<TrendingUp className="w-5 h-5" />}
+          icon={<TrendingUp className="w-4.5 h-4.5" />}
         />
         <KPICard
           title="Risk Exposure Score"
@@ -180,121 +179,153 @@ export function Dashboard() {
           unit=" / 100"
           trend={loading ? 0 : criticalCount > 0 ? 5.2 : -1.8}
           color="warning"
-          icon={<AlertCircle className="w-5 h-5" />}
+          icon={<AlertCircle className="w-4.5 h-4.5" />}
         />
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Chart title="Revenue Overview" type="line" />
-        <Chart title="Decision Impact" type="bar" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <Chart title="Revenue Performance" type="line" />
+        <Chart title="Decision Leverage & Impact" type="bar" />
       </div>
 
-      {/* Today's Decisions & AI Recommendations */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Priority Actions & AI Strategic recommendations */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Live Decision Feed */}
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-2xl font-bold">Priority Actions</h2>
+          <div className="flex items-center justify-between pb-1">
+            <h2 className="text-sm font-semibold tracking-tight text-white">Priority Actions</h2>
+            <span className="text-[10px] text-zinc-500 font-medium">Ranked by Priority Score</span>
+          </div>
           {loading ? (
-            Array.from({ length: 2 }).map((_, idx) => (
-              <div key={idx} className="bg-card border border-border rounded-xl p-6 h-32 animate-pulse bg-muted/30"></div>
-            ))
+            <div className="space-y-4">
+              {Array.from({ length: 2 }).map((_, idx) => (
+                <div key={idx} className="bg-zinc-900/40 border border-border/80 rounded-xl p-6 h-28 animate-pulse"></div>
+              ))}
+            </div>
           ) : decisions.length > 0 ? (
-            decisions.slice(0, 3).map((decision) => (
-              <DecisionCard
-                key={decision.decision_id}
-                priority={mapPriority(decision.priority_level)}
-                title={decision.title}
-                rootCause={decision.root_cause}
-                impact={formatImpact(decision.financial_impact)}
-                confidence={decision.confidence_score}
-                recommendation={decision.recommendation}
-                expectedROI={decision.expected_roi}
-              />
-            ))
+            <div className="space-y-3">
+              {decisions.slice(0, 3).map((decision) => (
+                <DecisionCard
+                  key={decision.decision_id}
+                  priority={mapPriority(decision.priority_level)}
+                  title={decision.title}
+                  rootCause={decision.root_cause}
+                  impact={formatImpact(decision.financial_impact)}
+                  confidence={decision.confidence_score}
+                  recommendation={decision.recommendation}
+                  expectedROI={decision.expected_roi}
+                />
+              ))}
+            </div>
           ) : (
-            <div className="p-8 text-center bg-card border border-border rounded-xl text-text-secondary">
+            <div className="p-10 text-center bg-zinc-900/10 border border-dashed border-border rounded-xl text-zinc-500 text-xs">
               No priority actions flagged. System operational.
             </div>
           )}
         </div>
 
         {/* AI Recommendations Sidebar */}
-        <div className="bg-card border border-border rounded-xl p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-5 h-5 text-accent animate-pulse" />
-              <h3 className="text-lg font-bold">AI Strategic Actions</h3>
-            </div>
-            
+        <div className="bg-gradient-to-b from-zinc-900/60 via-zinc-900/20 to-indigo-950/5 border border-border/80 rounded-xl p-5 flex flex-col space-y-4">
+          <div className="flex items-center gap-2 border-b border-border/40 pb-3">
+            <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
+            <h3 className="text-xs font-semibold text-white uppercase tracking-wider">AI Strategic Actions</h3>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto">
             {loading ? (
-              <div className="space-y-3 animate-pulse">
-                <div className="h-12 bg-muted rounded"></div>
-                <div className="h-12 bg-muted rounded"></div>
+              <div className="space-y-3">
+                <div className="h-14 bg-zinc-900/60 rounded-lg animate-pulse"></div>
+                <div className="h-14 bg-zinc-900/60 rounded-lg animate-pulse"></div>
               </div>
             ) : summary && summary.recommended_actions?.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {summary.recommended_actions.slice(0, 4).map((action, idx) => (
                   <div 
                     key={idx} 
-                    className="p-3 bg-muted rounded-lg border border-border hover:border-accent transition-colors cursor-pointer"
+                    className="p-3 bg-zinc-900/40 border border-border/60 hover:border-indigo-500/40 hover:bg-zinc-900/80 rounded-lg transition-all duration-150 cursor-pointer group"
                   >
-                    <p className="text-sm font-medium">{action}</p>
-                    <p className="text-xs text-text-secondary mt-1">Recommended AI Task</p>
+                    <p className="text-xs text-zinc-300 group-hover:text-white leading-normal font-medium">{action}</p>
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></div>
+                      <span className="text-[9px] uppercase tracking-wider font-bold text-zinc-500 group-hover:text-indigo-400 transition-colors">Recommended Pilot Task</span>
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-6 border border-dashed rounded-lg border-border">
-                <p className="text-xs text-text-secondary">Upload data to receive AI recommendations.</p>
+              <div className="text-center py-10 border border-dashed rounded-lg border-border/60 flex flex-col items-center justify-center space-y-2">
+                <Sparkles className="w-5 h-5 text-zinc-600" />
+                <p className="text-[10px] text-zinc-500 max-w-[180px] leading-relaxed">Upload business data to receive AI recommendations.</p>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Row 3: Business Health Summary & Recent Activity / Uploads */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Business Health Summary */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-6">
-          <h3 className="text-lg font-bold mb-4">Business Health Summary</h3>
+      {/* Health Summary & Recent Upload Logs */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Business Health Summary Document */}
+        <div className="lg:col-span-2 bg-zinc-900/40 border border-border/80 rounded-xl p-6 space-y-4">
+          <div className="border-b border-border/40 pb-3 flex items-center justify-between">
+            <h3 className="text-xs font-semibold text-white uppercase tracking-wider">Business Health Summary</h3>
+            <span className="text-[9px] uppercase tracking-wider font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">AI Aggregated</span>
+          </div>
           {loading ? (
-            <div className="h-20 bg-muted rounded animate-pulse"></div>
+            <div className="space-y-2.5">
+              <div className="h-4 bg-zinc-900/60 rounded w-full animate-pulse"></div>
+              <div className="h-4 bg-zinc-900/60 rounded w-5/6 animate-pulse"></div>
+            </div>
           ) : summary?.business_health_summary ? (
-            <p className="text-sm leading-relaxed text-foreground bg-muted/40 p-4 rounded-lg border border-border">
-              {summary.business_health_summary}
-            </p>
+            <div className="relative pl-4 border-l-2 border-indigo-500 bg-zinc-900/30 p-4 rounded-r-lg border border-border/40 border-l-0">
+              <p className="text-xs leading-relaxed text-zinc-300 font-medium">
+                {summary.business_health_summary}
+              </p>
+            </div>
           ) : (
-            <div className="text-center py-8 border border-dashed border-border rounded-lg text-text-secondary">
+            <div className="text-center py-10 border border-dashed border-border/80 rounded-lg text-zinc-500 text-xs">
               No business health metrics computed. Upload datasets to generate summaries.
             </div>
           )}
         </div>
 
-        {/* Recent Activity / Uploads */}
-        <div className="bg-card border border-border rounded-xl p-6">
-          <h3 className="text-lg font-bold mb-4">Recent Uploads</h3>
+        {/* Recent Activity Logs */}
+        <div className="bg-zinc-900/40 border border-border/80 rounded-xl p-5 space-y-4">
+          <h3 className="text-xs font-semibold text-white uppercase tracking-wider border-b border-border/40 pb-3">Recent Upload Logs</h3>
+          
           {loading ? (
             <div className="space-y-3">
-              <div className="h-10 bg-muted rounded animate-pulse"></div>
-              <div className="h-10 bg-muted rounded animate-pulse"></div>
+              <div className="h-12 bg-zinc-900/60 rounded-lg animate-pulse"></div>
+              <div className="h-12 bg-zinc-900/60 rounded-lg animate-pulse"></div>
             </div>
           ) : uploads.length > 0 ? (
-            <div className="space-y-3">
-              {uploads.slice(0, 3).map((up) => (
-                <div key={up.upload_id} className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg text-xs">
-                  <FileText className="w-4 h-4 text-accent" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold truncate">{up.filename}</p>
-                    <p className="text-text-secondary">{up.rows} rows × {up.columns} cols</p>
+            <div className="space-y-2.5">
+              {uploads.slice(0, 3).map((up) => {
+                const getQualityBadgeColor = (score: number) => {
+                  if (score >= 80) return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                  if (score >= 60) return 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                  return 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                }
+                return (
+                  <div key={up.upload_id} className="flex items-center gap-3 p-3 bg-zinc-900/50 hover:bg-zinc-900/80 border border-border/60 rounded-lg transition-colors text-xs">
+                    <div className="w-8 h-8 rounded-md bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-400 flex-shrink-0">
+                      <FileText className="w-4 h-4 text-indigo-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-zinc-200 truncate">{up.filename}</p>
+                      <p className="text-[10px] text-zinc-500 mt-0.5">{up.rows.toLocaleString()} rows × {up.columns} columns</p>
+                    </div>
+                    <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getQualityBadgeColor(up.quality_score)}`}>
+                      QS: {up.quality_score}
+                    </div>
                   </div>
-                  <span className="text-success font-bold">QS: {up.quality_score}</span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           ) : (
-            <div className="text-center py-6 border border-dashed rounded-lg border-border">
-              <p className="text-xs text-text-secondary">No datasets uploaded yet.</p>
+            <div className="text-center py-8 border border-dashed rounded-lg border-border/80 flex flex-col items-center justify-center space-y-2">
+              <Database className="w-5 h-5 text-zinc-700" />
+              <p className="text-[10px] text-zinc-500">No datasets uploaded yet.</p>
             </div>
           )}
         </div>
