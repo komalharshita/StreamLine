@@ -1,6 +1,6 @@
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Optional
 from google.cloud import bigquery
 from google.oauth2 import service_account
@@ -87,7 +87,7 @@ class BigQueryService:
         dataset_id = f"streamline_{workspace_clean}"
 
         # 2. Format dynamic table naming: sales_YYYYMMDD_HHMMSS
-        timestamp_suffix = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp_suffix = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         table_id = table_name_override or f"sales_{timestamp_suffix}"
 
         logger.info(f"Preparing BigQuery ingestion to target destination: '{dataset_id}.{table_id}'")

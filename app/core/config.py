@@ -1,7 +1,21 @@
 import os
+import sys
 from typing import Literal
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Automatically bridge Windows certificate store to gRPC SSL trust chain
+if sys.platform.startswith("win"):
+    try:
+        import certifi
+        # Set GRPC_DEFAULT_SSL_ROOTS_FILE_PATH pointing to certifi bundle (which is patched by pip-system-certs)
+        os.environ["GRPC_DEFAULT_SSL_ROOTS_FILE_PATH"] = certifi.where()
+        # Set SSL_CERT_FILE and REQUESTS_CA_BUNDLE to align standard requests and client libs
+        os.environ["SSL_CERT_FILE"] = certifi.where()
+        os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
+    except ImportError:
+        pass
+
 
 
 class Settings(BaseSettings):

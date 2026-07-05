@@ -1,6 +1,6 @@
 import logging
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 import pandas as pd
 
@@ -82,7 +82,7 @@ class DecisionDetector:
                                     recommendation=rec,
                                     expected_roi=roi,
                                     status="active",
-                                    created_at=datetime.utcnow(),
+                                    created_at=datetime.now(timezone.utc),
                                 )
                             )
             except Exception as e:
@@ -129,7 +129,7 @@ class DecisionDetector:
                                 recommendation=rec,
                                 expected_roi=roi,
                                 status="active",
-                                created_at=datetime.utcnow(),
+                                created_at=datetime.now(timezone.utc),
                             )
                         )
 
@@ -160,7 +160,7 @@ class DecisionDetector:
                                 recommendation=rec,
                                 expected_roi=roi,
                                 status="active",
-                                created_at=datetime.utcnow(),
+                                created_at=datetime.now(timezone.utc),
                             )
                         )
             except Exception as e:
@@ -216,7 +216,7 @@ class DecisionDetector:
                             recommendation=rec,
                             expected_roi=roi,
                             status="active",
-                            created_at=datetime.utcnow(),
+                            created_at=datetime.now(timezone.utc),
                         )
                     )
 
@@ -248,7 +248,7 @@ class DecisionDetector:
                             recommendation=rec,
                             expected_roi=roi,
                             status="active",
-                            created_at=datetime.utcnow(),
+                            created_at=datetime.now(timezone.utc),
                         )
                     )
 
@@ -280,7 +280,7 @@ class DecisionDetector:
                             recommendation=rec,
                             expected_roi=roi,
                             status="active",
-                            created_at=datetime.utcnow(),
+                            created_at=datetime.now(timezone.utc),
                         )
                     )
 
@@ -338,7 +338,7 @@ class DecisionDetector:
                                 recommendation=rec,
                                 expected_roi=roi,
                                 status="active",
-                                created_at=datetime.utcnow(),
+                                created_at=datetime.now(timezone.utc),
                             )
                         )
             except Exception as e:

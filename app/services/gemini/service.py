@@ -1,26 +1,15 @@
 import logging
 from abc import ABC, abstractmethod
 from typing import Optional
-
-try:
-    import google.generativeai as genai
-    HAS_GEMINI_SDK = True
-except ImportError:
-    HAS_GEMINI_SDK = False
+from google import genai
+from google.genai import types
+from google.genai.errors import APIError
 
 from app.core.config import settings
 from app.schemas.chat import ChatMessage, ChatResponse
 from app.services.base import BaseService
 
 logger = logging.getLogger("app.services.gemini")
-
-# Initialize Gemini SDK client if API key is provided and library is installed
-if HAS_GEMINI_SDK and settings.GEMINI_API_KEY:
-    try:
-        genai.configure(api_key=settings.GEMINI_API_KEY)
-        logger.info("Gemini AI SDK configured successfully.")
-    except Exception as e:
-        logger.error(f"Failed to configure Gemini AI SDK: {str(e)}")
 
 
 class GeminiServiceInterface(BaseService, ABC):
@@ -35,25 +24,34 @@ class GeminiServiceInterface(BaseService, ABC):
 
 
 class GeminiService(GeminiServiceInterface):
-    """Concrete implementation of the GeminiService."""
+    """Concrete implementation of the GeminiService using the new google-genai SDK."""
 
-    def __init__(self, model_name: str = "gemini-1.5-pro") -> None:
+    def __init__(self, model_name: str = "gemini-2.5-flash") -> None:
         self.model_name = model_name
+        self._client: Optional[genai.Client] = None
+
+    def _get_client(self) -> Optional[genai.Client]:
+        if self._client is not None:
+            return self._client
+        if settings.GEMINI_API_KEY:
+            try:
+                self._client = genai.Client(api_key=settings.GEMINI_API_KEY)
+                return self._client
+            except Exception as e:
+                logger.error(f"Failed to configure Gemini Client: {str(e)}")
+        return None
 
     def generate_chat_response(
         self, prompt: str, history: list[ChatMessage], dataset_context: Optional[str] = None
     ) -> ChatResponse:
         logger.info(f"Generating Gemini response for prompt length: {len(prompt)}")
         
-        # Check if API Key and SDK are available, otherwise return mock response
-        if not HAS_GEMINI_SDK or not settings.GEMINI_API_KEY:
-            logger.warning("Gemini SDK or API Key is missing. Falling back to mock assistant response.")
+        client = self._get_client()
+        if not client:
+            logger.warning("Gemini Client or API Key is missing. Falling back to mock assistant response.")
             return self._generate_mock_response(prompt, dataset_context)
 
         try:
-            # Setup conversational model
-            model = genai.GenerativeModel(self.model_name)
-            
             # Grounding prompt augmentation if table reference is specified
             context_prefix = ""
             if dataset_context:
@@ -61,22 +59,29 @@ class GeminiService(GeminiServiceInterface):
                     f"[System Context: Ground your answer using the data fields of BigQuery table: {dataset_context}]\n"
                 )
 
-            # Build history list for Gemini format
-            gemini_history = []
+            # Build history list for google-genai Content list
+            contents = []
             for msg in history:
                 role = "user" if msg.role == "user" else "model"
-                gemini_history.append({"role": role, "parts": [msg.content]})
+                contents.append(
+                    types.Content(role=role, parts=[types.Part.from_text(text=msg.content)])
+                )
 
-            # Start chat session
-            chat = model.start_chat(history=gemini_history)
             full_prompt = f"{context_prefix}{prompt}"
-            
-            response = chat.send_message(full_prompt)
+            contents.append(
+                types.Content(role="user", parts=[types.Part.from_text(text=full_prompt)])
+            )
+
+            # Generate content
+            response = client.models.generate_content(
+                model=self.model_name,
+                contents=contents,
+            )
             
             return ChatResponse(
-                response=response.text,
+                response=response.text or "",
                 sources=[dataset_context] if dataset_context else [],
-                token_usage=response.usage_metadata.total_token_count if hasattr(response, "usage_metadata") else 0,
+                token_usage=response.usage_metadata.total_token_count if response.usage_metadata else 0,
             )
         except Exception as e:
             logger.error(f"Gemini API invocation failed: {str(e)}")
