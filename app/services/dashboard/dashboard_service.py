@@ -3,8 +3,8 @@ import time
 from typing import Any
 
 from app.decision_engine.decision_service import decision_service
-from app.upload.metadata_service import metadata_store
 from app.gemini.gemini_service import gemini_service
+from app.upload.metadata_service import metadata_store
 
 logger = logging.getLogger("app.dashboard.dashboard_service")
 
@@ -23,7 +23,7 @@ class DashboardService:
             decisions = decision_service.get_feed()
             critical_count = sum(1 for d in decisions if d.priority_level == "Critical")
             high_count = sum(1 for d in decisions if d.priority_level == "High")
-            
+
             # 2. Fetch uploads list
             uploads = metadata_store.list_all()
 
@@ -31,7 +31,9 @@ class DashboardService:
             exec_summary = gemini_service.generate_executive_summary()
 
             # 4. Compute Health & Risk scores
-            risk_score = min(100, critical_count * 25 + high_count * 12 + len(decisions) * 3)
+            risk_score = min(
+                100, critical_count * 25 + high_count * 12 + len(decisions) * 3
+            )
             health_score = max(15, 100 - risk_score)
 
             # 5. Extract KPIs list
@@ -63,20 +65,32 @@ class DashboardService:
             charts_data = {
                 "labels": ["Q1", "Q2", "Q3", "Q4"],
                 "datasets": [
-                    {"name": "ARR growth", "data": [500000.0, 1100000.0, 1800000.0, 2450000.0]},
-                    {"name": "Acquisitions cost", "data": [45000.0, 52000.0, 48000.0, 60000.0]},
+                    {
+                        "name": "ARR growth",
+                        "data": [500000.0, 1100000.0, 1800000.0, 2450000.0],
+                    },
+                    {
+                        "name": "Acquisitions cost",
+                        "data": [45000.0, 52000.0, 48000.0, 60000.0],
+                    },
                 ],
             }
 
             # 7. Recent Activity
             recent_activity = []
             for idx, dec in enumerate(decisions[:3]):
-                recent_activity.append({
-                    "id": dec.decision_id,
-                    "description": f"Priority Alert: {dec.title}",
-                    "timestamp": dec.created_at.isoformat() if hasattr(dec.created_at, "isoformat") else str(dec.created_at),
-                    "status": dec.status,
-                })
+                recent_activity.append(
+                    {
+                        "id": dec.decision_id,
+                        "description": f"Priority Alert: {dec.title}",
+                        "timestamp": (
+                            dec.created_at.isoformat()
+                            if hasattr(dec.created_at, "isoformat")
+                            else str(dec.created_at)
+                        ),
+                        "status": dec.status,
+                    }
+                )
 
             return {
                 "business_health": {
@@ -93,8 +107,12 @@ class DashboardService:
                     "growth_yoy": 12.4,
                 },
                 "inventory_summary": {
-                    "shortages_count": sum(1 for d in decisions if d.category == "Inventory Shortage"),
-                    "overstocks_count": sum(1 for d in decisions if d.category == "Inventory Overstock"),
+                    "shortages_count": sum(
+                        1 for d in decisions if d.category == "Inventory Shortage"
+                    ),
+                    "overstocks_count": sum(
+                        1 for d in decisions if d.category == "Inventory Overstock"
+                    ),
                 },
                 "executive_summary": {
                     "business_health_summary": exec_summary.business_health_summary,

@@ -90,6 +90,7 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
 def health_check() -> dict[str, Any]:
     """Liveness/readiness endpoint verifying GCP adapters and Gemini integrations."""
     import os
+
     components = {
         "fastapi": "healthy",
         "cloud_storage": "healthy",
@@ -97,7 +98,7 @@ def health_check() -> dict[str, Any]:
         "gemini": "healthy",
         "env_variables": "healthy",
     }
-    
+
     # 1. Verify Env variables
     missing_vars = []
     for var in ["GCS_BUCKET_NAME", "BIGQUERY_DATASET", "GEMINI_API_KEY"]:
@@ -105,29 +106,32 @@ def health_check() -> dict[str, Any]:
             missing_vars.append(var)
     if missing_vars:
         components["env_variables"] = "warning"
-        
+
     # 2. Verify Cloud Storage
     try:
         from app.storage.gcs_service import gcs_storage_service
+
         # Simple client check
         if not gcs_storage_service._get_client():
             components["cloud_storage"] = "warning"
     except Exception as e:
         logger.error(f"Healthcheck: GCS configuration offline: {str(e)}")
         components["cloud_storage"] = "warning"
-        
+
     # 3. Verify BigQuery
     try:
         from app.bigquery.bigquery_service import bq_ingestion_service
+
         if not bq_ingestion_service._get_client():
             components["bigquery"] = "warning"
     except Exception as e:
         logger.error(f"Healthcheck: BigQuery client configuration error: {str(e)}")
         components["bigquery"] = "warning"
-        
+
     # 4. Verify Gemini
     try:
         from app.gemini.gemini_service import gemini_service
+
         if not gemini_service.api_key:
             components["gemini"] = "warning"
     except Exception as e:

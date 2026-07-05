@@ -23,22 +23,26 @@ class UploadStatusTracker:
     @staticmethod
     def update_status(upload_id: str, status: str, stage: str, progress: int) -> None:
         if upload_id in _status_store:
-            _status_store[upload_id].update({
-                "status": status,
-                "stage": stage,
-                "progress": progress,
-            })
+            _status_store[upload_id].update(
+                {
+                    "status": status,
+                    "stage": stage,
+                    "progress": progress,
+                }
+            )
             logger.info(f"Upload '{upload_id}' stage updated: {stage} ({progress}%)")
 
     @staticmethod
     def fail_status(upload_id: str, error_msg: str) -> None:
         if upload_id in _status_store:
-            _status_store[upload_id].update({
-                "status": "Failed",
-                "stage": "Failed",
-                "progress": 0,
-                "error": error_msg,
-            })
+            _status_store[upload_id].update(
+                {
+                    "status": "Failed",
+                    "stage": "Failed",
+                    "progress": 0,
+                    "error": error_msg,
+                }
+            )
             logger.error(f"Upload '{upload_id}' failed: {error_msg}")
 
     @staticmethod

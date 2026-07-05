@@ -1,6 +1,7 @@
 import logging
 import uuid
 from typing import Any
+
 from fastapi import HTTPException, status
 
 from app.bigquery.bigquery_service import bq_ingestion_service
@@ -9,8 +10,8 @@ from app.cleaning.schemas import CleaningConfig
 from app.storage.gcs_service import gcs_storage_service
 from app.upload.file_parser import FileParser
 from app.upload.metadata_service import metadata_store
-from app.upload.validators import FileValidator
 from app.upload.status_tracker import UploadStatusTracker
+from app.upload.validators import FileValidator
 
 logger = logging.getLogger("app.upload.upload_service")
 
@@ -28,10 +29,10 @@ class UploadService:
         """Validates, deduplicates, parses, and logs the metadata of an uploaded file."""
         size_bytes = len(file_bytes)
         upload_id = str(uuid.uuid4())
-        
+
         # 1. Initialize tracking
         UploadStatusTracker.initialize_status(upload_id)
-        
+
         logger.info(
             f"Processing upload for file: '{filename}', size={size_bytes} bytes, MIME={content_type}"
         )
@@ -65,7 +66,9 @@ class UploadService:
                 )
 
             # 6. Parse and Clean
-            UploadStatusTracker.update_status(upload_id, "Cleaning", "Cleaning Data", 40)
+            UploadStatusTracker.update_status(
+                upload_id, "Cleaning", "Cleaning Data", 40
+            )
             _, _, df = FileParser.parse_and_get_dimensions(file_bytes, extension)
 
             dataset_type = None
@@ -84,7 +87,10 @@ class UploadService:
 
             # 7. Upload original file to Cloud Storage
             UploadStatusTracker.update_status(
-                upload_id, "Uploading to Cloud Storage", "Uploading to Cloud Storage", 60
+                upload_id,
+                "Uploading to Cloud Storage",
+                "Uploading to Cloud Storage",
+                60,
             )
             blob_name = f"uploads/{uploaded_by}/{upload_id}_{filename}"
             try:
@@ -97,7 +103,9 @@ class UploadService:
                 raise e
 
             # 8. Ingest Cleaned DataFrame into Google BigQuery
-            UploadStatusTracker.update_status(upload_id, "BigQuery", "Loading BigQuery", 80)
+            UploadStatusTracker.update_status(
+                upload_id, "BigQuery", "Loading BigQuery", 80
+            )
             workspace = "analytics"
             if "@" in uploaded_by:
                 workspace = uploaded_by.split("@")[-1].split(".")[0]
@@ -119,6 +127,7 @@ class UploadService:
             )
             try:
                 from app.decision_engine.decision_service import decision_service
+
                 decision_service.refresh_feed_from_dataframe(
                     df_cleaned, dataset_type or "Sales"
                 )
