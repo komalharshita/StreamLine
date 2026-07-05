@@ -65,3 +65,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# SQLite fallbacks
+local_metadata.db
+*.db
+
