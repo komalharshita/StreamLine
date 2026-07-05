@@ -50,58 +50,15 @@ class GeminiService(GeminiServiceInterface):
         history: list[ChatMessage],
         dataset_context: Optional[str] = None,
     ) -> ChatResponse:
-        logger.info(f"Generating Gemini response for prompt length: {len(prompt)}")
+        logger.info(f"Delegating chat query to consolidated grounded Gemini Service.")
+        from app.gemini.gemini_service import gemini_service as main_gemini_service
 
-        client = self._get_client()
-        if not client:
-            logger.warning(
-                "Gemini Client or API Key is missing. Falling back to mock assistant response."
-            )
-            return self._generate_mock_response(prompt, dataset_context)
+        return main_gemini_service.generate_chat_response_grounded(
+            message=prompt,
+            history=history,
+            dataset_context=dataset_context
+        )
 
-        try:
-            # Grounding prompt augmentation if table reference is specified
-            context_prefix = ""
-            if dataset_context:
-                context_prefix = f"[System Context: Ground your answer using the data fields of BigQuery table: {dataset_context}]\n"
-
-            # Build history list for google-genai Content list
-            contents = []
-            for msg in history:
-                role = "user" if msg.role == "user" else "model"
-                contents.append(
-                    types.Content(
-                        role=role, parts=[types.Part.from_text(text=msg.content)]
-                    )
-                )
-
-            full_prompt = f"{context_prefix}{prompt}"
-            contents.append(
-                types.Content(
-                    role="user", parts=[types.Part.from_text(text=full_prompt)]
-                )
-            )
-
-            # Generate content
-            response = client.models.generate_content(
-                model=self.model_name,
-                contents=contents,
-            )
-
-            return ChatResponse(
-                response=response.text or "",
-                sources=[dataset_context] if dataset_context else [],
-                token_usage=(
-                    response.usage_metadata.total_token_count
-                    if response.usage_metadata
-                    else 0
-                ),
-            )
-        except Exception as e:
-            logger.error(f"Gemini API invocation failed: {str(e)}")
-            return self._generate_mock_response(
-                prompt, dataset_context, error_msg=str(e)
-            )
 
     def _generate_mock_response(
         self,
