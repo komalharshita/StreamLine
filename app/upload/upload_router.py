@@ -81,3 +81,13 @@ def delete_upload(
         message=f"File metadata record with ID '{id}' was successfully deleted.",
         upload_id=id,
     )
+
+
+@router.get(
+    "/upload/{upload_id}/status",
+    summary="Get real-time upload processing stage and status",
+)
+def get_upload_status(upload_id: str):
+    """Returns the in-memory progress and active pipeline stage of a dataset upload."""
+    from app.upload.status_tracker import UploadStatusTracker
+    return UploadStatusTracker.get_status(upload_id)

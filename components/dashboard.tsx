@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { TrendingUp, AlertCircle, Zap, Loader2, RefreshCw, Sparkles } from 'lucide-react'
+import { TrendingUp, AlertCircle, Zap, Loader2, RefreshCw, Sparkles, FileText, Database } from 'lucide-react'
 import { KPICard } from './kpi-card'
 import { DecisionCard } from './decision-card'
 import { Chart } from './chart'
@@ -28,6 +28,7 @@ interface Decision {
   recommendation: string
   expected_roi: number
   status: string
+  created_at: string
 }
 
 interface ExecutiveSummary {
@@ -37,9 +38,20 @@ interface ExecutiveSummary {
   recommended_actions: string[]
 }
 
+interface UploadRecord {
+  upload_id: string
+  filename: string
+  rows: number
+  columns: number
+  quality_score: number
+  upload_time: string
+}
+
 export function Dashboard() {
+  const [dashboardData, setDashboardData] = useState<any>(null)
   const [kpis, setKpis] = useState<KPIMetric[]>([])
   const [decisions, setDecisions] = useState<Decision[]>([])
+  const [uploads, setUploads] = useState<UploadRecord[]>([])
   const [summary, setSummary] = useState<ExecutiveSummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -48,19 +60,18 @@ export function Dashboard() {
     setLoading(true)
     setError(null)
     try {
-      // Parallel fetches for low latency
-      const [metricsData, decisionsData, summaryData] = await Promise.all([
-        apiClient.get('/api/v1/dashboard/metrics'),
-        apiClient.get('/api/v1/decision-feed'),
-        apiClient.get('/api/v1/gemini/executive-summary')
-      ])
-
-      setKpis(metricsData.kpi_cards || [])
-      setDecisions(decisionsData.decisions || [])
-      setSummary(summaryData)
+      const data = await apiClient.get('/api/v1/dashboard')
+      if (data.system_status === 'error') {
+        throw new Error(data.error || 'Server aggregation failed')
+      }
+      setDashboardData(data)
+      setKpis(data.kpis || [])
+      setDecisions(data.decisions || [])
+      setUploads(data.recent_uploads || [])
+      setSummary(data.executive_summary || null)
     } catch (err: any) {
       console.error('Failed to load dashboard data:', err)
-      setError(err?.message || 'Error communicating with analytics endpoints.')
+      setError(err?.message || 'Error communicating with analytics server.')
     } finally {
       setLoading(false)
     }
@@ -217,9 +228,9 @@ export function Dashboard() {
             </div>
             
             {loading ? (
-              <div className="space-y-3">
-                <div className="h-12 bg-muted rounded animate-pulse"></div>
-                <div className="h-12 bg-muted rounded animate-pulse"></div>
+              <div className="space-y-3 animate-pulse">
+                <div className="h-12 bg-muted rounded"></div>
+                <div className="h-12 bg-muted rounded"></div>
               </div>
             ) : summary && summary.recommended_actions?.length > 0 ? (
               <div className="space-y-3">
@@ -229,29 +240,64 @@ export function Dashboard() {
                     className="p-3 bg-muted rounded-lg border border-border hover:border-accent transition-colors cursor-pointer"
                   >
                     <p className="text-sm font-medium">{action}</p>
-                    <p className="text-xs text-text-secondary mt-1">Recommended ROI impact</p>
+                    <p className="text-xs text-text-secondary mt-1">Recommended AI Task</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-text-secondary">No AI recommendations computed yet.</p>
+              <div className="text-center py-6 border border-dashed rounded-lg border-border">
+                <p className="text-xs text-text-secondary">Upload data to receive AI recommendations.</p>
+              </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Business Health Summary */}
-      <div className="bg-card border border-border rounded-xl p-6">
-        <h3 className="text-lg font-bold mb-4">Business Health Summary</h3>
-        {loading ? (
-          <div className="h-16 bg-muted rounded animate-pulse"></div>
-        ) : summary?.business_health_summary ? (
-          <p className="text-sm leading-relaxed text-foreground bg-muted/40 p-4 rounded-lg border border-border">
-            {summary.business_health_summary}
-          </p>
-        ) : (
-          <p className="text-sm text-text-secondary">No business summary calculated.</p>
-        )}
+      {/* Row 3: Business Health Summary & Recent Activity / Uploads */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Business Health Summary */}
+        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-6">
+          <h3 className="text-lg font-bold mb-4">Business Health Summary</h3>
+          {loading ? (
+            <div className="h-20 bg-muted rounded animate-pulse"></div>
+          ) : summary?.business_health_summary ? (
+            <p className="text-sm leading-relaxed text-foreground bg-muted/40 p-4 rounded-lg border border-border">
+              {summary.business_health_summary}
+            </p>
+          ) : (
+            <div className="text-center py-8 border border-dashed border-border rounded-lg text-text-secondary">
+              No business health metrics computed. Upload datasets to generate summaries.
+            </div>
+          )}
+        </div>
+
+        {/* Recent Activity / Uploads */}
+        <div className="bg-card border border-border rounded-xl p-6">
+          <h3 className="text-lg font-bold mb-4">Recent Uploads</h3>
+          {loading ? (
+            <div className="space-y-3">
+              <div className="h-10 bg-muted rounded animate-pulse"></div>
+              <div className="h-10 bg-muted rounded animate-pulse"></div>
+            </div>
+          ) : uploads.length > 0 ? (
+            <div className="space-y-3">
+              {uploads.slice(0, 3).map((up) => (
+                <div key={up.upload_id} className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg text-xs">
+                  <FileText className="w-4 h-4 text-accent" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold truncate">{up.filename}</p>
+                    <p className="text-text-secondary">{up.rows} rows × {up.columns} cols</p>
+                  </div>
+                  <span className="text-success font-bold">QS: {up.quality_score}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 border border-dashed rounded-lg border-border">
+              <p className="text-xs text-text-secondary">No datasets uploaded yet.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
