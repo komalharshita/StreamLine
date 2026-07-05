@@ -26,3 +26,26 @@ class AssignRoleRequest(BaseModel):
     """Request payload to assign a workspace role to a user."""
 
     role: str = Field(..., description="Role name to grant, e.g. admin, analyst")
+
+
+class UserRegister(BaseModel):
+    """Payload to register a new local user."""
+
+    email: EmailStr = Field(...)
+    password: str = Field(..., min_length=6)
+    name: Optional[str] = None
+
+
+class UserLogin(BaseModel):
+    """Payload to login an existing local user."""
+
+    email: EmailStr = Field(...)
+    password: str = Field(...)
+
+
+class TokenResponse(BaseModel):
+    """Successful authentication token payload."""
+
+    access_token: str
+    token_type: str = "bearer"
+
