@@ -109,7 +109,7 @@ def health_check() -> dict[str, Any]:
     try:
         from app.storage.gcs_service import gcs_storage_service
         # Simple client check
-        if not gcs_storage_service.client:
+        if not gcs_storage_service._get_client():
             components["cloud_storage"] = "warning"
     except Exception as e:
         logger.error(f"Healthcheck: GCS configuration offline: {str(e)}")
@@ -118,7 +118,7 @@ def health_check() -> dict[str, Any]:
     # 3. Verify BigQuery
     try:
         from app.bigquery.bigquery_service import bq_ingestion_service
-        if not bq_ingestion_service.client:
+        if not bq_ingestion_service._get_client():
             components["bigquery"] = "warning"
     except Exception as e:
         logger.error(f"Healthcheck: BigQuery client configuration error: {str(e)}")
