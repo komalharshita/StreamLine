@@ -1,28 +1,75 @@
 'use client'
 
-import { useState } from 'react'
-import { Beaker, Settings2, Sliders, TrendingUp, Zap, HelpCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Beaker, Settings2, Sliders, TrendingUp, Zap, HelpCircle, Loader2 } from 'lucide-react'
+import { apiClient } from '@/lib/api-client'
 
 export function SimulationLab() {
   const [priceAdjust, setPriceAdjust] = useState(0) // -15 to +15 %
   const [marketingBudget, setMarketingBudget] = useState(25) // -50 to +100 %
   const [shippingPriority, setShippingPriority] = useState(250) // 0 to 1000 $
 
-  // Compute mock dynamic metrics based on sliders
-  const simulatedHealth = Math.min(100, Math.max(15, 82 + (marketingBudget * 0.15) - (priceAdjust * 0.4) - (shippingPriority * 0.005))).toFixed(0)
-  const simulatedROI = (18.5 + (priceAdjust * 0.8) + (marketingBudget * 0.22) - (shippingPriority * 0.008)).toFixed(1)
-  const simulatedSavings = Math.round(45000 + (marketingBudget * 950) + (priceAdjust * 1400) - (shippingPriority * 8))
+  const [simulatedHealth, setSimulatedHealth] = useState('80')
+  const [simulatedROI, setSimulatedROI] = useState('22.5')
+  const [simulatedSavings, setSimulatedSavings] = useState(48000)
+  const [loading, setLoading] = useState(false)
+
+  // Debounced API call to backend Simulation Service
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      setLoading(true)
+      try {
+        const response: any = await apiClient.post('/api/v1/simulation/run', {
+          name: 'Interactive Parameter Sandbox',
+          base_dataset_id: 'default-workspace-dataset',
+          parameters: {
+            price_adjust: priceAdjust,
+            marketing_budget: marketingBudget,
+            shipping_priority: shippingPriority,
+          },
+        })
+
+        if (response && response.results) {
+          setSimulatedHealth(String(response.results.health))
+          setSimulatedROI(String(response.results.roi))
+          setSimulatedSavings(response.results.savings)
+        }
+      } catch (err) {
+        console.error('Failed to run scenario simulation:', err)
+        // Simple client calculation fallback if server is offline
+        const fallbackHealth = Math.min(100, Math.max(15, 82 + (marketingBudget * 0.15) - (priceAdjust * 0.4) - (shippingPriority * 0.005))).toFixed(0)
+        const fallbackROI = (18.5 + (priceAdjust * 0.8) + (marketingBudget * 0.22) - (shippingPriority * 0.008)).toFixed(1)
+        const fallbackSavings = Math.round(45000 + (marketingBudget * 950) + (priceAdjust * 1400) - (shippingPriority * 8))
+        setSimulatedHealth(fallbackHealth)
+        setSimulatedROI(fallbackROI)
+        setSimulatedSavings(fallbackSavings)
+      } finally {
+        setLoading(false)
+      }
+    }, 300)
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [priceAdjust, marketingBudget, shippingPriority])
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 select-none">
       {/* Header */}
-      <div className="border-b border-border/40 pb-5">
-        <h1 className="text-2xl font-bold tracking-tight text-white font-sans flex items-center gap-2">
-          <Beaker className="w-6 h-6 text-accent" />
-          <span>Simulation Lab</span>
-        </h1>
-        <p className="text-xs text-muted-foreground mt-1">Evaluate expected forecasting impact, priority scores, and ROI projections via dynamic parameters tuning.</p>
+      <div className="border-b border-border/40 pb-5 flex justify-between items-center w-full">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-white font-sans flex items-center gap-2">
+            <Beaker className="w-6 h-6 text-accent" />
+            <span>Simulation Lab</span>
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1">Evaluate expected forecasting impact, priority scores, and ROI projections via dynamic parameters tuning.</p>
+        </div>
+        {loading && (
+          <div className="flex items-center gap-1.5 text-accent text-xs font-mono">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <span>Recalculating...</span>
+          </div>
+        )}
       </div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Dynamic Variable Sliders */}

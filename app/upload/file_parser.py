@@ -35,9 +35,28 @@ class FileParser:
                     df = pd.read_csv(io.BytesIO(file_bytes), encoding="latin-1")
 
             elif extension in {".xlsx", ".xls"}:
-                # Attempt to parse as Excel
-                # Requires openpyxl installed for .xlsx
-                df = pd.read_excel(io.BytesIO(file_bytes))
+                # Attempt to parse all sheets in the Excel file
+                xls_dict = pd.read_excel(io.BytesIO(file_bytes), sheet_name=None)
+                if not xls_dict:
+                    raise ValueError("The uploaded Excel workbook contains no sheets.")
+
+                if len(xls_dict) == 1:
+                    df = list(xls_dict.values())[0]
+                else:
+                    logger.info(f"Multi-sheet Excel workbook identified: {list(xls_dict.keys())}")
+                    dfs = []
+                    for s_name, s_df in xls_dict.items():
+                        if not s_df.empty:
+                            s_df_copy = s_df.copy()
+                            # Inject source sheet name to trace schema rows
+                            s_df_copy["_sheet_name"] = str(s_name)
+                            dfs.append(s_df_copy)
+                    
+                    if dfs:
+                        df = pd.concat(dfs, ignore_index=True)
+                    else:
+                        df = list(xls_dict.values())[0]
+
             else:
                 raise ValueError(f"Unsupported parser extension: {extension}")
 

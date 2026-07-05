@@ -28,7 +28,9 @@ class SimulationResponse(BaseModel):
         ..., description="Current status: pending, running, completed, failed"
     )
     results_url: Optional[str] = None
+    results: Optional[dict[str, Any]] = None
     created_by: str
+
     created_at: datetime
     completed_at: Optional[datetime] = None
     execution_time_seconds: Optional[float] = None

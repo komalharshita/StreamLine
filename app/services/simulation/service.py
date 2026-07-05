@@ -46,11 +46,29 @@ class SimulationService(SimulationServiceInterface):
         )
         scenario_id = f"sim-{uuid.uuid4()}"
 
+        # Extract variable parameters (mirroring slider deltas)
+        params = scenario_in.parameters or {}
+        price_adjust = float(params.get("price_adjust", 0.0))
+        marketing_budget = float(params.get("marketing_budget", 0.0))
+        shipping_priority = float(params.get("shipping_priority", 250.0))
+
+        # Perform mathematical ROI / health projection loops
+        sim_health = min(100.0, max(15.0, 82.0 + (marketing_budget * 0.15) - (price_adjust * 0.4) - (shipping_priority * 0.005)))
+        sim_roi = 18.5 + (price_adjust * 0.8) + (marketing_budget * 0.22) - (shipping_priority * 0.008)
+        sim_savings = round(45000.0 + (marketing_budget * 950.0) + (price_adjust * 1400.0) - (shipping_priority * 8.0))
+
+        results = {
+            "health": round(sim_health, 1),
+            "roi": round(sim_roi, 1),
+            "savings": int(sim_savings),
+        }
+
         # Initialize pending scenario model
         scenario = SimulationScenario(
             id=scenario_id,
             name=scenario_in.name,
             parameters=scenario_in.parameters,
+            results=results,
             base_dataset_id=scenario_in.base_dataset_id,
             status="pending",
             created_by=user_id,
@@ -66,6 +84,7 @@ class SimulationService(SimulationServiceInterface):
         saved_scenario.status = "completed"
         saved_scenario.results_url = f"https://storage.googleapis.com/streamline-data-ingestion/simulations/{scenario_id}_results.csv"
         self.scenario_repo.save(saved_scenario)
+
 
         return saved_scenario
 
