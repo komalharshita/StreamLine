@@ -56,6 +56,7 @@ class MetadataService:
         dataset: Optional[str] = None,
         table: Optional[str] = None,
         job_id: Optional[str] = None,
+        quality_score: Optional[float] = None,
     ) -> dict[str, Any]:
         """Saves a new upload metadata record and updates the duplicate index."""
         record = {
@@ -73,6 +74,7 @@ class MetadataService:
             "dataset": dataset,
             "table": table,
             "job_id": job_id,
+            "quality_score": quality_score,
             "status": "uploaded",
         }
         

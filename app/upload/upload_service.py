@@ -8,6 +8,8 @@ from app.upload.metadata_service import metadata_store
 from app.upload.validators import FileValidator
 from app.storage.gcs_service import gcs_storage_service
 from app.bigquery.bigquery_service import bq_ingestion_service
+from app.cleaning.cleaning_service import cleaning_service
+from app.cleaning.schemas import CleaningConfig
 
 logger = logging.getLogger("app.upload.upload_service")
 
@@ -51,7 +53,22 @@ class UploadService:
             )
 
         # 5. Parse file structure dimensions (rows, columns) - catches corruption errors
-        rows, columns, df = FileParser.parse_and_get_dimensions(file_bytes, extension)
+        _, _, df = FileParser.parse_and_get_dimensions(file_bytes, extension)
+
+        # 5b. Pass DataFrame through the cleaning pipeline
+        dataset_type = None
+        fn_lower = filename.lower()
+        if "sale" in fn_lower:
+            dataset_type = "Sales"
+        elif "invent" in fn_lower:
+            dataset_type = "Inventory"
+        elif "transact" in fn_lower or "finance" in fn_lower:
+            dataset_type = "Financial Transactions"
+
+        config = CleaningConfig(dataset_type=dataset_type)
+        df_cleaned, quality_report = cleaning_service.clean_dataset(df, config)
+        cleaned_rows = len(df_cleaned)
+        cleaned_cols = len(df_cleaned.columns)
 
         # 6. Upload original file to Cloud Storage
         upload_id = str(uuid.uuid4())
@@ -68,13 +85,13 @@ class UploadService:
             logger.critical(f"Upload to GCS failed: {str(e)}")
             raise e
 
-        # 6b. Ingest DataFrame into Google BigQuery
+        # 6b. Ingest Cleaned DataFrame into Google BigQuery
         workspace = "analytics"
         if "@" in uploaded_by:
             workspace = uploaded_by.split("@")[-1].split(".")[0]
 
         try:
-            bq_result = bq_ingestion_service.load_dataframe(df=df, workspace=workspace)
+            bq_result = bq_ingestion_service.load_dataframe(df=df_cleaned, workspace=workspace)
             dataset = bq_result["dataset"]
             table = bq_result["table"]
             job_id = bq_result["job_id"]
@@ -82,14 +99,14 @@ class UploadService:
             logger.critical(f"BigQuery ingestion failed: {str(e)}")
             raise e
 
-        # 7. Save metadata including GCS and BigQuery fields
+        # 7. Save metadata including GCS, BigQuery, and quality fields
         metadata_record = metadata_store.save(
             upload_id=upload_id,
             filename=filename,
             extension=extension,
-            rows=rows,
-            columns=columns,
-            size_bytes=size_bytes,
+            rows=cleaned_rows,
+            columns=cleaned_cols,
+            size_bytes=len(file_bytes),
             file_hash=file_hash,
             uploaded_by=uploaded_by,
             gcs_uri=gcs_uri,
@@ -97,6 +114,7 @@ class UploadService:
             dataset=dataset,
             table=table,
             job_id=job_id,
+            quality_score=quality_report.quality_score,
         )
 
         return metadata_record

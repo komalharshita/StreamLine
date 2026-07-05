@@ -88,3 +88,13 @@ The platform integrates with GCS for persisting uploaded datasets:
 * **Cloud Run Deployment**: Omit `GOOGLE_APPLICATION_CREDENTIALS`. The application will authenticate seamlessly via Application Default Credentials (ADC) using the service account assigned to the Cloud Run service.
 * **Bucket Settings**: Change `GCS_BUCKET_NAME` to specify your target storage bucket name.
 
+---
+
+## Data Cleaning & Preprocessing Configuration
+The ingestion pipeline automatically standardizes and cleans business datasets before they are stored in Google BigQuery:
+* **Snake Case Headers**: Automatically converts headers into lowercase, removes special characters, and formats them in `snake_case`.
+* **Missing Value Imputations**: Resolves missing numeric values with the column Median, categorical/text fields with the Mode, datetimes with a Forward Fill, and booleans with `False`.
+* **Value Normalization**: Converts currency strings (e.g., `$1,200.50`) and percentage expressions (e.g., `12.5%`) to standard float and decimal formats.
+* **Data Quality Score**: Renders a quality index (0–100) based on cell completion ratios, row duplicates, and structural anomalies.
+
+

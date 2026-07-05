@@ -19,6 +19,7 @@ class UploadMetadataResponse(BaseModel):
     dataset: Optional[str] = Field(None, description="Google BigQuery dataset destination ID")
     table: Optional[str] = Field(None, description="Google BigQuery table destination ID")
     job_id: Optional[str] = Field(None, description="BigQuery Load Job Identifier")
+    quality_score: Optional[float] = Field(None, description="Inferred dataset quality score (0-100)")
     status: str = Field(..., description="Liveness status of the dataset (e.g., 'uploaded', 'deleted')")
 
     class Config:
