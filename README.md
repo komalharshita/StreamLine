@@ -1,3 +1,6 @@
+<img width="500" height="500" align="centre" alt="Blue and Purple Modern Technology Logo" src="https://github.com/user-attachments/assets/0b6632ba-8641-4318-851b-12adda8a5462" />
+
+
 # StreamLine - Autonomous Decision Intelligence Platform
 
 StreamLine is a production-ready AI SaaS platform designed to offer businesses autonomous decision intelligence capabilities. The repository integrates a Next.js frontend alongside a Clean Architecture FastAPI backend.
@@ -74,6 +77,42 @@ We use `ruff`, `black`, and `mypy` to maintain high code quality:
 
 ---
 
+## Architectural Flow
+
+```mermaid
+sequenceDiagram
+    participant User as Frontend UI
+    participant Router as API Router
+    participant Service as Upload Service
+    participant Engine as Decision Engine
+    participant BigQuery as BigQuery DB
+    participant Tracker as Status Tracker
+
+    User->>Router: POST /upload/preview (file)
+    Router->>Service: Parse bytes & Analyze Quality
+    Service-->>Router: Preview stats, types, quality score
+    Router->>Tracker: Initialize state (WAITING_CONFIRMATION)
+    Router-->>User: Return preview data & upload_id
+
+    Note over User: User reviews schema, type detection & warnings
+    User->>Router: POST /upload/confirm (upload_id)
+    Router->>Tracker: Update state (IMPORTING)
+    Router->>Service: Launch Background Task
+    Router-->>User: Return confirmation success (200 OK)
+    
+    loop Polling status
+        User->>Router: GET /upload/{id}/status
+        Router-->>User: Current stage, progress, remaining time
+    end
+
+    Note over Service: Background Task runs
+    Service->>BigQuery: Ingest Cleaned Data
+    Service->>Engine: Refresh Decision Feed
+    Service->>Tracker: Update state (COMPLETED / FAILED)
+```
+
+---
+
 ## Architectural Principles
 1. **SOLID Principles**: Each module and class has a single responsibility. We use interface definitions and abstract classes for decoupling code.
 2. **Repository Pattern**: Data persistence details (BigQuery, GCS, etc.) are abstracted away behind repository interfaces, making it trivial to swap storage engines.
@@ -147,6 +186,5 @@ The ingestion pipeline automatically standardizes and cleans business datasets b
      --set-env-vars="ENVIRONMENT=production,GOOGLE_CLOUD_PROJECT=your-project-id,GCS_BUCKET_NAME=your-bucket-name,BIGQUERY_DATASET=your-dataset-name,GEMINI_API_KEY=your-gemini-key"
    ```
 3. Copy the service URL returned by Cloud Run and configure it in your Vercel Environment Variables.
-
 
 
