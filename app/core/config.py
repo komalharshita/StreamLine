@@ -51,6 +51,7 @@ class Settings(BaseSettings):
         "http://localhost:8000",
         "https://streamline-ui.vercel.app",
         "https://stream-line-ui-architecture.vercel.app",
+        "https://stream-line-nu.vercel.app",
     ]
 
     # Configure Pydantic to read from .env if present
