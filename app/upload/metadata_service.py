@@ -17,6 +17,56 @@ class MetadataService:
         # Index dictionary for duplicate prevention: sha256_hash -> upload_id
         self._hash_index: dict[str, str] = {}
 
+        # Seed default mock datasets for demo purposes
+        from datetime import datetime, timezone
+        mock_records = [
+            {
+                "upload_id": "mock-upload-1",
+                "filename": "sales.csv",
+                "extension": "csv",
+                "rows": 1250,
+                "columns": 12,
+                "sizeBytes": 51673,
+                "size_bytes": 51673,
+                "file_hash": "mock-hash-1",
+                "upload_time": datetime.now(timezone.utc),
+                "uploaded_by": "default-user",
+                "quality_score": 92.5,
+                "status": "uploaded",
+            },
+            {
+                "upload_id": "mock-upload-2",
+                "filename": "inventory.csv",
+                "extension": "csv",
+                "rows": 4500,
+                "columns": 8,
+                "sizeBytes": 6191463,
+                "size_bytes": 6191463,
+                "file_hash": "mock-hash-2",
+                "upload_time": datetime.now(timezone.utc),
+                "uploaded_by": "default-user",
+                "quality_score": 88.0,
+                "status": "uploaded",
+            },
+            {
+                "upload_id": "mock-upload-3",
+                "filename": "transactions.csv",
+                "extension": "csv",
+                "rows": 9800,
+                "columns": 15,
+                "sizeBytes": 12799101,
+                "size_bytes": 12799101,
+                "file_hash": "mock-hash-3",
+                "upload_time": datetime.now(timezone.utc),
+                "uploaded_by": "default-user",
+                "quality_score": 96.0,
+                "status": "uploaded",
+            }
+        ]
+        for r in mock_records:
+            self._store[r["upload_id"]] = r
+            self._hash_index[r["file_hash"]] = r["upload_id"]
+
     @staticmethod
     def calculate_hash(file_bytes: bytes) -> str:
         """Calculates the SHA-256 hash checksum of file bytes to detect duplicate content."""

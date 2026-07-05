@@ -5,6 +5,10 @@ import { Sidebar } from '@/components/sidebar'
 import { TopBar } from '@/components/top-bar'
 import { Dashboard } from '@/components/dashboard'
 import { DecisionFeed } from '@/components/decision-feed'
+import { DecisionPilot } from '@/components/decision-pilot'
+import { SimulationLab } from '@/components/simulation-lab'
+import { Reports } from '@/components/reports'
+import { DataCenter } from '@/components/data-center'
 import { AIChat } from '@/components/ai-chat'
 import { BarChart3 } from 'lucide-react'
 
@@ -27,6 +31,10 @@ export default function Page() {
           <div className="animate-in fade-in duration-200 ease-out">
             {activeTab === 'dashboard' && <Dashboard />}
             {activeTab === 'decision-feed' && <DecisionFeed />}
+            {activeTab === 'pilot' && <DecisionPilot />}
+            {activeTab === 'simulation' && <SimulationLab />}
+            {activeTab === 'reports' && <Reports />}
+            {activeTab === 'data' && <DataCenter />}
             {activeTab === 'analytics' && (
               <div className="p-8 max-w-4xl mx-auto space-y-6">
                 <div>
