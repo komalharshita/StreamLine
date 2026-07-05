@@ -77,7 +77,11 @@ class SimulationScenario(DomainModel):
     results_url: Optional[str] = Field(
         None, description="Path to simulation results output"
     )
+    results: Optional[dict[str, Any]] = Field(
+        None, description="Calculated simulated output metrics"
+    )
     created_by: str = Field(..., description="UID of the user who initiated simulation")
+
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 

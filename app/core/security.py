@@ -8,34 +8,57 @@ from firebase_admin import auth
 
 from app.core.config import settings
 
+from jose import jwt
+from jose.exceptions import JWTError
+
+from app.core.config import settings
+
 logger = logging.getLogger("app.security")
 
 # HTTP Bearer scheme setup
 security_scheme = HTTPBearer(auto_error=False)
 
 # Initialize Firebase Admin SDK if not already initialized
-if not settings.FIREBASE_MOCK_AUTH:
+firebase_initialized = False
+try:
+    firebase_admin.get_app()
+    firebase_initialized = True
+except ValueError:
     try:
-        # Check if already initialized to avoid throwing exception
-        firebase_admin.get_app()
-    except ValueError:
         # Use default credentials (e.g. from Google Application Credentials or metadata server)
         firebase_admin.initialize_app()
+        firebase_initialized = True
         logger.info("Firebase Admin SDK successfully initialized.")
+    except Exception as e:
+        logger.warning(
+            f"Firebase Admin SDK could not be initialized (offline/unconfigured): {str(e)}"
+        )
 
 
 class SecurityManager:
-    """Handles token validation against Firebase Authentication services."""
+    """Handles token validation against local JWT credentials or Firebase Authentication services."""
 
     def __init__(self, mock_auth: bool = settings.FIREBASE_MOCK_AUTH):
         self.mock_auth = mock_auth
 
     def verify_token(self, token: str) -> dict[str, Any]:
-        """Verifies a Firebase ID token.
+        """Verifies a custom local JWT token or Firebase ID token.
 
-        In production, verifies token signature and expiration.
-        In mock mode, returns a simulated authenticated user identity.
+        Returns authenticated user identity details.
         """
+        # 1. Attempt to decode as local/custom JWT
+        try:
+            payload = jwt.decode(
+                token,
+                settings.JWT_SECRET_KEY,
+                algorithms=[settings.JWT_ALGORITHM],
+            )
+            logger.debug("Successfully validated credentials via local JWT signature.")
+            return payload
+        except JWTError:
+            # If not a valid custom JWT, fallback to Firebase validation if initialized
+            pass
+
         if self.mock_auth:
             logger.debug("Bypassing authentication check (Mock Auth active).")
             # Return a valid mock payload for testing
@@ -46,6 +69,13 @@ class SecurityManager:
                 "email_verified": True,
                 "roles": ["admin", "analyst"],
             }
+
+        if not firebase_initialized:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication provider is unavailable.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
         try:
             # Verify the ID token against Firebase Authentication servers
@@ -58,6 +88,7 @@ class SecurityManager:
                 detail="Invalid or expired authentication credentials.",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+
 
 
 # Dependency instance

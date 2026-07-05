@@ -41,7 +41,12 @@ class Settings(BaseSettings):
 
     # Firebase Authentication
     FIREBASE_PROJECT_ID: str = "streamline-auth"
-    FIREBASE_MOCK_AUTH: bool = True
+    FIREBASE_MOCK_AUTH: bool = False
+
+    # JWT Settings for local/custom authentication
+    JWT_SECRET_KEY: str = "streamline-secret-key-change-in-production-12345"
+    JWT_ALGORITHM: str = "HS256"
+
 
     # CORS Configurations
     # List of allowed origins, e.g., ["http://localhost:3000"]
