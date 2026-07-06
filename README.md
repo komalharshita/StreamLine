@@ -5,6 +5,14 @@
 
 StreamLine is a production-ready AI SaaS platform designed to offer businesses autonomous decision intelligence capabilities. The repository integrates a Next.js frontend alongside a Clean Architecture FastAPI backend.
 
+> [!TIP]
+> **Hackathon Demo Login Credentials**
+> For judges running or testing the application locally or on staging:
+> - **Username**: `streamlineuser` (or `streamlineuser@streamline.com`)
+> - **Password**: `streamline`
+> These credentials are pre-seeded in the database and pre-populated on the login form out-of-the-box. Just click **Access Account** to log in immediately.
+
+
 ## Tech Stack
 * **Frontend**: Next.js, React, Tailwind CSS, TypeScript
 * **Backend**: Python 3.12, FastAPI, Pydantic v2, Google Cloud Storage, BigQuery, Gemini API, RAPIDS cuDF, cuML, Firebase Authentication (ready)
