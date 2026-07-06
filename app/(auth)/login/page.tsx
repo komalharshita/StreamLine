@@ -7,8 +7,8 @@ import { Sparkles, Loader2, AlertCircle } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('streamlineuser')
+  const [password, setPassword] = useState('streamline')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -71,6 +71,18 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {/* Hackathon Demo Account Tip Banner */}
+        <div className="p-3.5 bg-accent/5 border border-accent/15 rounded-xl text-slate-300 text-xs leading-relaxed space-y-1">
+          <span className="font-semibold text-accent flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 animate-pulse text-accent" />
+            Hackathon Demo Account
+          </span>
+          <p className="text-[11px] text-muted-foreground">
+            Username: <strong className="text-slate-200">streamlineuser</strong><br />
+            Password: <strong className="text-slate-200">streamline</strong>
+          </p>
+        </div>
+
         {error && (
           <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg flex items-center gap-2.5 text-xs">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -81,10 +93,10 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
-              Email Address
+              Username or Email
             </label>
             <input
-              type="email"
+              type="text"
               required
               disabled={loading}
               value={email}

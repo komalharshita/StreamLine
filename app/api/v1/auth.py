@@ -27,6 +27,8 @@ def register_user(
 ) -> TokenResponse:
     """Registers a new user inside the local SQLite database and generates a JWT token."""
     email_clean = payload.email.lower().strip()
+    if "@" not in email_clean:
+        email_clean = f"{email_clean}@streamline.com"
     
     # Check if user already exists
     cursor = bq_manager.conn.cursor()
@@ -75,6 +77,8 @@ def login_user(
 ) -> TokenResponse:
     """Verifies credentials against local users database and returns a signed JWT token."""
     email_clean = payload.email.lower().strip()
+    if "@" not in email_clean:
+        email_clean = f"{email_clean}@streamline.com"
 
     cursor = bq_manager.conn.cursor()
     cursor.execute("SELECT id, password_hash, name, roles FROM users WHERE email = ?", (email_clean,))

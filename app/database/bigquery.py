@@ -135,6 +135,23 @@ class BigQueryManager:
                     processed INTEGER
                 )
             """)
+            
+            # Seed default hackathon demo user if not exists
+            cursor.execute("SELECT id FROM users WHERE email = 'streamlineuser@streamline.com'")
+            if not cursor.fetchone():
+                from passlib.hash import bcrypt
+                import uuid
+                from datetime import datetime, timezone
+                
+                hashed_pw = bcrypt.hash("streamline")
+                uid = "hackathon-seed-user-123"
+                created_at = datetime.now(timezone.utc).isoformat()
+                cursor.execute(
+                    "INSERT INTO users (id, email, password_hash, name, roles, is_active, created_at) VALUES (?, 'streamlineuser@streamline.com', ?, 'StreamLine User', 'admin', 1, ?)",
+                    (uid, hashed_pw, created_at)
+                )
+                logger.info("Hackathon seed user inserted successfully.")
+                
             self.conn.commit()
             logger.info("Local SQLite metadata tables verified/created successfully.")
         except Exception as e:

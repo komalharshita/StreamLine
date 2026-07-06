@@ -31,7 +31,7 @@ class AssignRoleRequest(BaseModel):
 class UserRegister(BaseModel):
     """Payload to register a new local user."""
 
-    email: EmailStr = Field(...)
+    email: str = Field(...)
     password: str = Field(..., min_length=6)
     name: Optional[str] = None
 
@@ -39,7 +39,7 @@ class UserRegister(BaseModel):
 class UserLogin(BaseModel):
     """Payload to login an existing local user."""
 
-    email: EmailStr = Field(...)
+    email: str = Field(...)
     password: str = Field(...)
 
 
