@@ -51,7 +51,11 @@ class BigQueryManager:
         self.conn = None
 
         # Always configure local SQLite database for local credentials/metadata
-        self.conn = sqlite3.connect("local_metadata.db", check_same_thread=False)
+        import os
+        db_path = "local_metadata.db"
+        if "VERCEL" in os.environ:
+            db_path = "/tmp/local_metadata.db"
+        self.conn = sqlite3.connect(db_path, check_same_thread=False)
         self._setup_local_tables()
 
         if client is not None:
